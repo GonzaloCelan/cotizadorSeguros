@@ -13,8 +13,7 @@ import jakarta.validation.Valid;
 public interface IPrecioPlanService {
 
 	
-	ResultadoCotizacion cotizadorJerarquicos(ClienteConsulta cliente);    
-    ResultadoCotizacion cotizadorJerarquicosPM(ClienteConsulta cliente);
+	
 	List<PlanDTO> cotizarPlanes(ClienteConsulta cliente);
 	PlanDTO cotizarPlanId(String proveedor,ClienteConsulta cliente, int idPlan);
     

@@ -38,19 +38,6 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 	 }
 	
 	
-	@Override
-	public ResultadoCotizacion cotizadorJerarquicos(ClienteConsulta cliente) {
-		
-		return precioPlanDAO.cotizadorJerarquicos(cliente);
-		
-		
-	}
-
-	@Override
-	public ResultadoCotizacion cotizadorJerarquicosPM(ClienteConsulta cliente) {
-		
-		return precioPlanDAO.cotizadorJerarquicosPM(cliente);
-	}
 	
 	
 	@Override

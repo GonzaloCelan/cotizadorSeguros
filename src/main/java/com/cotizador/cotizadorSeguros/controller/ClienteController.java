@@ -38,18 +38,7 @@ public class ClienteController {
 			
 			 // Mapeo del DTO a la entidad ClienteConsulta
 			
-		    ClienteConsulta cliente = new ClienteConsulta();
-		    cliente.setCantidad(request.getCantidad());
-		    cliente.setEdadTitular(request.getEdadTitular());
-		    cliente.setGeneroTitular(request.getGeneroTitular());
-		    cliente.setTienePareja(request.isTienePareja());
-		    cliente.setGeneroPareja(request.getGeneroPareja());
-		    cliente.setEdadPareja(request.getEdadPareja());
-		    cliente.setTieneHijos(request.isTieneHijos());
-		    cliente.setCantidadHijos(request.getCantidadHijos());
-		    cliente.setIdAfiliacion(request.getIdAfiliacion());
-		    cliente.setSueldoBruto(request.getSueldoBruto());
-		  	
+			ClienteConsulta cliente = mapToClienteConsulta(request);
 		    // recibo una list de planes, desde la capa service 
 		    
 			List<PlanDTO> resultado = service.cotizarPlanes(cliente);
@@ -67,23 +56,31 @@ public class ClienteController {
 	    		@PathVariable int id, 
 	    		@RequestBody @Valid ConsultaRequestDTO request) {
 			
-			 ClienteConsulta cliente = new ClienteConsulta();
-			    cliente.setCantidad(request.getCantidad());
-			    cliente.setEdadTitular(request.getEdadTitular());
-			    cliente.setGeneroTitular(request.getGeneroTitular());
-			    cliente.setTienePareja(request.isTienePareja());
-			    cliente.setGeneroPareja(request.getGeneroPareja());
-			    cliente.setEdadPareja(request.getEdadPareja());
-			    cliente.setTieneHijos(request.isTieneHijos());
-			    cliente.setCantidadHijos(request.getCantidadHijos());
-			    cliente.setIdAfiliacion(request.getIdAfiliacion());
-			    cliente.setSueldoBruto(request.getSueldoBruto());
+			ClienteConsulta cliente = mapToClienteConsulta(request);
 			    
 			PlanDTO resultado = service.cotizarPlanId(proveedor, cliente, id);
 			
 			return ResponseEntity.ok(resultado);
 
 	    }
+		
+		
+		//metodo para mapear el request a un objeto cliente
+		
+		private ClienteConsulta mapToClienteConsulta(ConsultaRequestDTO request) {
+		    ClienteConsulta cliente = new ClienteConsulta();
+		    cliente.setCantidad(request.getCantidad());
+		    cliente.setEdadTitular(request.getEdadTitular());
+		    cliente.setGeneroTitular(request.getGeneroTitular());
+		    cliente.setTienePareja(request.isTienePareja());
+		    cliente.setGeneroPareja(request.getGeneroPareja());
+		    cliente.setEdadPareja(request.getEdadPareja());
+		    cliente.setTieneHijos(request.isTieneHijos());
+		    cliente.setCantidadHijos(request.getCantidadHijos());
+		    cliente.setIdAfiliacion(request.getIdAfiliacion());
+		    cliente.setSueldoBruto(request.getSueldoBruto());
+		    return cliente;
+		}
 		
 		
 	
