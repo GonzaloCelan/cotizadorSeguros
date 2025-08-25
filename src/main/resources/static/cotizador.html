@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>FrancoSalud – Cotizador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f7f9fc; --card:#ffffff; --ink:#0f172a; --muted:#66758a; --line:#e7ecf3;
+      --primary:#06b6d4; --primary-700:#0891b2; --accent:#22c55e;
+      --radius:14px; --shadow:0 10px 30px -15px rgba(15,23,42,.22);
+      --ease:cubic-bezier(.2,.8,.2,1); --dur-1:160ms; --dur-2:260ms;
+    }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif;-webkit-font-smoothing:antialiased}
+    .top-strip{background:linear-gradient(135deg,var(--primary) 0%, #11b9c5 45%, #6be3ea 100%);color:#fff;text-align:center;padding:34px 16px 80px;font-weight:800;font-size:30px;box-shadow:0 8px 24px -18px rgba(0,0,0,.4)}
+    .wrap{max-width:960px;margin:-56px auto 48px;padding:0 16px;position:relative}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);transition:transform var(--dur-2) var(--ease), box-shadow var(--dur-2) var(--ease)}
+    .card:hover{transform:translateY(-2px);box-shadow:0 14px 36px -16px rgba(15,23,42,.28)}
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+    .col-6{grid-column:span 6} .col-4{grid-column:span 4} .col-3{grid-column:span 3} .col-8{grid-column:span 8} .col-12{grid-column:span 12}
+    label{display:block;font-size:12px;color:var(--muted);margin:0 0 6px;font-weight:600}
+    input, select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;outline:none;background:#fff;color:var(--ink);transition:border-color var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease), transform var(--dur-1) var(--ease)}
+    input:focus, select:focus{border-color:#cde8eb;box-shadow:0 0 0 6px rgba(6,182,212,.12)}
+    .actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    button{cursor:pointer;border:0;font-weight:700;padding:12px 16px;border-radius:12px;transition:transform var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease)}
+    #btnEnviar{background:linear-gradient(135deg,var(--primary-700),var(--primary));color:#fff;box-shadow:0 12px 22px -14px rgba(3,130,139,.65)}
+    #btnEnviar:hover{transform:translateY(-1px)}
+    #btnEnviar.loading{position:relative;pointer-events:none;opacity:.9}
+    #btnEnviar.loading::after{
+      content:"";position:absolute;right:12px;top:50%;width:16px;height:16px;border:2px solid #fff;border-right-color:transparent;border-radius:50%;
+      transform:translateY(-50%);animation:spin .7s linear infinite
+    }
+    @keyframes spin{to{transform:translateY(-50%) rotate(360deg)}}
+    #btnLimpiar{background:#fff;border:1px solid var(--line);color:var(--ink)}
+    .msg{margin-top:14px;padding:12px;border-radius:12px;display:none;border:1px solid;opacity:0;transform:translateY(-6px);
+      transition:opacity var(--dur-2) var(--ease), transform var(--dur-2) var(--ease)}
+    .msg.show{opacity:1;transform:none;display:block}
+    .ok{border-color:#c9f5df;background:#ecfbf4;color:#126a3a}
+    .err{border-color:#fecaca;background:#fef2f2;color:#7f1d1d}
+    table{width:100%;border-collapse:collapse;margin-top:14px}
+    th, td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
+    th{background:#f8fafc;position:sticky;top:0;z-index:1}
+
+    .row-in{opacity:0; transform:translateY(8px); animation:rowIn .35s var(--ease) forwards}
+    @keyframes rowIn{to{opacity:1; transform:none}}
+    .price-pop{animation:pop .45s var(--ease)}
+    @keyframes pop{0%{transform:scale(.98)} 60%{transform:scale(1.04)} 100%{transform:scale(1)}}
+    tbody tr{transition:background var(--dur-1) var(--ease)}
+    tbody tr:hover{background:#f7fbff}
+    tbody tr.best{outline:2px solid #b7f0d7; background:#f4fdf8; animation:bestPulse 1.8s ease-in-out 2}
+    @keyframes bestPulse{
+      0%{ box-shadow:0 0 0 0 rgba(34,197,94,.0) inset }
+      50%{ box-shadow:0 0 0 6px rgba(34,197,94,.25) inset }
+      100%{ box-shadow:0 0 0 2px #b7f0d7 inset }
+    }
+    tbody tr.unavail{outline:2px solid #fecaca; background:#fef2f2}
+    tbody tr.unavail td:last-child{color:#b91c1c; font-weight:700}
+    .muted{color:var(--muted)}
+
+    /* Dots por proveedor */
+    tbody tr td:first-child{ position:relative; padding-left:28px }
+    tbody tr td:first-child::before{
+      content:""; position:absolute; left:10px; top:50%; width:10px; height:10px; border-radius:50%;
+      transform:translateY(-50%); opacity:.9;
+    }
+    tbody tr[data-prov="Jerarquicos"]   td:first-child::before{ background:#0ea5e9 }
+    tbody tr[data-prov="DoctoRed"]      td:first-child::before{ background:#22c55e }
+    tbody tr[data-prov="SwissMedical"]  td:first-child::before{ background:#f97316 }
+
+    .hint{font-size:12px; color:var(--muted); margin:4px 0 10px}
+    .empty{font-size:14px; color:var(--muted); padding:12px; border:1px dashed var(--line); border-radius:12px; background:#fafcff}
+
+    .layout{display:grid; grid-template-columns: 1.25fr 0.9fr; gap:16px}
+    .results-card{align-self:start; position:sticky; top:16px}
+    .results-title{font-size:16px; font-weight:800; color:var(--ink); margin:0 0 6px}
+    @media (max-width: 980px){
+      .layout{grid-template-columns: 1fr}
+      .results-card{position:static}
+    }
+    .full{grid-column:1/-1}
+
+    /* Secciones bloqueadas */
+    .section{display:grid; grid-template-columns:inherit; gap:14px; margin-top:8px}
+    .section.disabled{opacity:.6}
+    .section.disabled input, .section.disabled select{background:#f3f6f9; cursor:not-allowed}
+
+    /* Skeleton loading */
+    .skel{ position:relative; overflow:hidden; background:#eef3f7; border-radius:8px; height:14px }
+    .skel::after{ content:""; position:absolute; inset:0; transform:translateX(-100%);
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.65),transparent);
+      animation:shimmer 1.2s infinite }
+    @keyframes shimmer{100%{transform:translateX(100%)}}
+
+    /* Badges */
+    .badge{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; border:1px solid transparent}
+    .badge.success{background:#ecfbf4; color:#126a3a; border-color:#c9f5df}
+    .badge.warn{background:#fef2f2; color:#7f1d1d; border-color:#fecaca}
+
+    /* Acciones sticky en mobile */
+    @media (max-width: 640px){
+      .actions{ position:sticky; bottom:0; background:var(--card); padding:12px;
+        border-top:1px solid var(--line); z-index:10 }
+    }
+
+    /* Preferencias del sistema */
+    @media (prefers-reduced-motion: reduce){
+      *{ animation:none !important; transition:none !important }
+    }
+    @media (prefers-color-scheme: dark){
+      :root{
+        --bg:#0b1220; --card:#111827; --ink:#e5eef9; --muted:#9fb0c7; --line:#1f2937;
+        --primary:#22d3ee; --primary-700:#06b6d4; --accent:#34d399;
+      }
+      tbody tr:hover{ background:#0f172a }
+      .top-strip{ box-shadow:none }
+    }
+  </style>
+</head>
+<body>
+  <div class="top-strip">FrancoSalud</div>
+  <div class="wrap">
+    <div class="layout">
+      <div class="card form-card">
+      <form id="cotizadorForm" novalidate>
+        <div class="grid">
+          <div class="col-4">
+            <label for="cantidad">Cantidad de personas</label>
+            <input id="cantidad" type="number" min="1" value="1" required />
+          </div>
+          <div class="col-4">
+            <label for="edadTitular">Edad titular</label>
+            <input id="edadTitular" type="number" min="0" required />
+          </div>
+
+          <div class="col-12">
+            <label for="generoTitular">Género titular</label>
+            <select id="generoTitular" required>
+              <option value="" selected disabled>Elegir…</option>
+              <option value="M">Masculino</option>
+              <option value="F">Femenino</option>
+            </select>
+          </div>
+          <div class="col-12">
+            <label for="idAfiliacion">Afiliación</label>
+            <select id="idAfiliacion" required>
+              <option value="" selected disabled>Elegir…</option>
+              <option value="1">Relación de dependencia</option>
+              <option value="2">Monotributista</option>
+              <option value="3">Particular</option>
+            </select>
+          </div>
+
+          <!-- Proveedor -->
+          <div class="col-12">
+            <label for="proveedor">Proveedor</label>
+            <select id="proveedor">
+              <option value="" selected>Todos los proveedores</option>
+              <option value="Jerarquicos">Jerárquicos</option>
+              <option value="DoctoRed">DoctoRed</option>
+              <option value="SwissMedical">Swiss Medical</option>
+            </select>
+          </div>
+
+          <!-- Plan (se llena tras cotizar) -->
+          <div class="col-12">
+            <label for="idPlan">Plan</label>
+            <select id="idPlan" disabled>
+              <option value="" selected>Todos los planes</option>
+            </select>
+            <div class="hint">Se habilita y completa automáticamente con los planes disponibles luego de cotizar.</div>
+          </div>
+
+          <!-- Solo dependencia -->
+          <div class="col-4 dep-only hidden">
+            <label for="sueldoBruto">Sueldo bruto</label>
+            <input id="sueldoBruto" type="number" step="0.01" min="0" placeholder="0.00" />
+          </div>
+
+          <!-- Pareja -->
+          <div class="col-12 full">
+            <div class="field-toggle">
+              <span class="label-inline">Tiene pareja</span>
+              <label class="switch">
+                <input type="checkbox" id="tienePareja"/>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div id="parejaFields" class="grid section disabled">
+              <div class="col-6">
+                <label for="generoPareja">Género de la pareja</label>
+                <select id="generoPareja">
+                  <option value="" selected disabled>Elegir…</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Femenino</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="edadPareja">Edad de la pareja</label>
+                <input id="edadPareja" type="number" min="0" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Hijos -->
+          <div class="col-12 full">
+            <div class="field-toggle">
+              <span class="label-inline">Tiene hijos</span>
+              <label class="switch">
+                <input type="checkbox" id="tieneHijos"/>
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div id="hijosFields" class="grid section disabled">
+              <div class="col-12">
+                <label for="cantidadHijos">Cantidad de hijos</label>
+                <input id="cantidadHijos" type="number" min="1" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button type="submit" id="btnEnviar">Cotizar</button>
+          <button type="button" id="btnLimpiar">Limpiar</button>
+        </div>
+        <div id="msgOk" class="msg ok">Cotización recibida con éxito.</div>
+        <div id="msgErr" class="msg err"></div>
+      </form>
+      </div>
+      <div class="card results-card">
+        <h3 class="results-title">Planes y precios</h3>
+        <div id="resultsHint" class="hint" style="display:none">Ordenado por precio (menor a mayor)</div>
+        <div id="emptyState" class="empty">Sin resultados aún. Completá el formulario y presioná <b>Cotizar</b>.</div>
+        <table id="tablaRespuesta" style="display:none">
+        <thead>
+          <tr><th>Proveedor · Plan</th><th>Precio</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:8080/api/cotizador/consultar";
+    const $ = (q) => document.querySelector(q);
+
+    // -------- Filtros --------
+    const selProveedor = $("#proveedor");
+    const selPlan      = $("#idPlan");
+    let PLANES_CACHE   = []; // último List<PlanDTO> recibido
+
+    // -------- Helpers de UI --------
+    function disableSection(sectionEl, disabled){
+      sectionEl.querySelectorAll('input, select').forEach(ctrl => ctrl.disabled = disabled);
+      sectionEl.classList.toggle('disabled', disabled);
+    }
+    function clearFeedback(){
+      $("#msgOk").style.display = "none";
+      $("#msgErr").style.display = "none";
+      $("#msgOk").classList.remove("show");
+      $("#msgErr").classList.remove("show");
+
+      $("#tablaRespuesta").style.display = "none";
+      $("#tablaRespuesta tbody").innerHTML = "";
+      const empty = document.getElementById("emptyState"); if(empty) empty.style.display = "block";
+      const hint  = document.getElementById("resultsHint"); if(hint)  hint.style.display  = "none";
+
+      PLANES_CACHE = [];
+      if (selProveedor) selProveedor.value = "";
+      if (selPlan){
+        selPlan.innerHTML = '<option value="">Todos los planes</option>';
+        selPlan.disabled = true;
+      }
+    }
+    function currency(n){
+      return new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(n);
+    }
+    function formatPrecio(v){
+      if (v === null || v === undefined) return '<span class="badge warn">Plan no disponible</span>';
+      const n = Number(v);
+      if (!Number.isFinite(n)) return '<span class="badge warn">No disponible</span>';
+      if (n === 0) return '<span class="badge success price-pop">✔ Cubierto al 100%</span>';
+      return `<span class="price" data-val="${n}">${currency(0)}</span>`;
+    }
+
+    // === HELPERS alineados al PlanDTO ===
+    function esc(str){ return String(str).replace(/[&<>"']/g, s=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function getPrecio(plan){
+      const e = plan.estado;
+      if (e === 'SIN_ACCESO' || plan.valor === null || plan.valor === undefined) return null;
+      if (e === 'COBERTURA_TOTAL') return 0;
+      return Number(plan.valor);
+    }
+    function getNombre(plan){
+      const prov = plan.proveedor ? `${plan.proveedor} · ` : '';
+      return `${prov}${plan.nombrePlan ?? 'Plan'}`;
+    }
+
+    // -------- Toggles: pareja / hijos --------
+    const chkPareja = $("#tienePareja");
+    const parejaBox = $("#parejaFields");
+    const generoPareja = $("#generoPareja");
+    const edadPareja = $("#edadPareja");
+
+    function togglePareja(){
+      const on = chkPareja.checked;
+      disableSection(parejaBox, !on);
+      generoPareja.required = on;
+      edadPareja.required = on;
+      if(!on){ generoPareja.value = ""; edadPareja.value = ""; }
+    }
+    chkPareja.setAttribute('aria-controls','parejaFields');
+    chkPareja.addEventListener("change", togglePareja);
+    togglePareja();
+    chkPareja.setAttribute('aria-expanded', chkPareja.checked ? 'true' : 'false');
+    chkPareja.addEventListener('change', ()=> chkPareja.setAttribute('aria-expanded', chkPareja.checked ? 'true' : 'false'));
+
+    const chkHijos = $("#tieneHijos");
+    const hijosBox = $("#hijosFields");
+    const cantidadHijos = $("#cantidadHijos");
+
+    function toggleHijos(){
+      const on = chkHijos.checked;
+      disableSection(hijosBox, !on);
+      cantidadHijos.required = on;
+      if(!on){ cantidadHijos.value = ""; }
+    }
+    chkHijos.setAttribute('aria-controls','hijosFields');
+    chkHijos.addEventListener("change", toggleHijos);
+    toggleHijos();
+    chkHijos.setAttribute('aria-expanded', chkHijos.checked ? 'true' : 'false');
+    chkHijos.addEventListener('change', ()=> chkHijos.setAttribute('aria-expanded', chkHijos.checked ? 'true' : 'false'));
+
+    // -------- Afiliación: dependencia --------
+    const idAfiliacion = $("#idAfiliacion");
+    const sueldoBruto = $("#sueldoBruto");
+    function toggleDepFields(){
+      const show = Number(idAfiliacion.value) === 1;
+      document.querySelectorAll('.dep-only').forEach(el => el.classList.toggle('hidden', !show));
+      if (sueldoBruto) sueldoBruto.required = show;
+      if(!show && sueldoBruto){ sueldoBruto.value = ""; }
+    }
+    idAfiliacion.addEventListener('change', toggleDepFields);
+    toggleDepFields();
+
+    // -------- Validación --------
+    function validar(){
+      const errores = [];
+      if(!$("#cantidad").value || Number($("#cantidad").value) < 1) errores.push("Cantidad inválida.");
+      if(!$("#edadTitular").value) errores.push("Ingresá la edad del titular.");
+      if(!$("#idAfiliacion").value) errores.push("Seleccioná la afiliación.");
+      if(!$("#generoTitular").value) errores.push("Seleccioná género del titular.");
+      if(Number($("#idAfiliacion").value) === 1){
+        if(!$("#sueldoBruto").value) errores.push("Ingresá el sueldo bruto.");
+      }
+      if(chkPareja.checked){
+        if(!generoPareja.value) errores.push("Seleccioná género de la pareja.");
+        if(!edadPareja.value) errores.push("Ingresá la edad de la pareja.");
+      }
+      if(chkHijos.checked){
+        const ch = Number(cantidadHijos.value);
+        if(!ch || ch < 1) errores.push("Ingresá la cantidad de hijos (>= 1).");
+      }
+      return errores;
+    }
+
+    // -------- Animaciones de importes --------
+    function applyRowAnims(){
+      const rows = document.querySelectorAll('#tablaRespuesta tbody tr');
+      rows.forEach((tr,i)=>{
+        tr.classList.add('row-in');
+        tr.style.animationDelay = (i*60)+'ms';
+      });
+    }
+    function animatePrices(){
+      const els = document.querySelectorAll('.price[data-val]');
+      const dur = 700; const start = performance.now();
+      function step(now){
+        const t = Math.min(1, (now - start)/dur);
+        els.forEach(el=>{
+          const target = Number(el.getAttribute('data-val')) || 0;
+          const eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = currency(target * eased);
+          if (t===1) el.classList.add('price-pop');
+        });
+        if (t<1) requestAnimationFrame(step);
+      }
+      if(els.length) requestAnimationFrame(step);
+    }
+
+    // -------- Filtros y render --------
+    function filtroProveedor(p, prov){ return !prov || p.proveedor === prov; }
+    function filtroPlan(p, idPlan){ return !idPlan || Number(p.idPlan) === Number(idPlan); }
+
+    function populatePlanSelect(planes, provSel){
+      const byId = new Map();
+      planes.forEach(p=>{
+        if (provSel && p.proveedor !== provSel) return;
+        const id = p.idPlan ?? null;
+        if (id === null || byId.has(id)) return;
+        const label = `${p.proveedor} · ${p.nombrePlan} (ID ${id})`;
+        byId.set(id, label);
+      });
+
+      selPlan.innerHTML = `<option value="">Todos los planes</option>`;
+      byId.forEach((label, id)=>{
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = label;
+        selPlan.appendChild(opt);
+      });
+
+      selPlan.disabled = byId.size === 0;
+    }
+
+    function renderResults(){
+      const provSel = selProveedor.value;
+      const idSel   = selPlan.value;
+
+      const filtered = PLANES_CACHE
+        .filter(p => filtroProveedor(p, provSel))
+        .filter(p => filtroPlan(p, idSel));
+
+      const rows = filtered.map(p=>{
+        const precio = getPrecio(p);
+        let num = Number.POSITIVE_INFINITY;
+        if (precio === 0) num = 0;
+        else if (precio !== null && Number.isFinite(Number(precio))) num = Number(precio);
+        return { plan:p, nombre:getNombre(p), precio, num };
+      }).sort((a,b)=>a.num - b.num);
+
+      const tbody = $("#tablaRespuesta tbody");
+      tbody.innerHTML = "";
+
+      const idxBest = rows.findIndex(r => Number.isFinite(r.num));
+      rows.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.dataset.prov = r.plan.proveedor || "";        // dot por proveedor
+        const isBest = (i === idxBest);
+        if (isBest) tr.classList.add('best');
+        if (!Number.isFinite(r.num)) tr.classList.add('unavail');
+        const bestTag = isBest ? ' <small class="muted">(mejor precio)</small>' : '';
+        tr.innerHTML = `<td>${esc(r.nombre)}${bestTag}</td><td>${formatPrecio(r.precio)}</td>`;
+        tbody.appendChild(tr);
+      });
+
+      const empty = document.getElementById('emptyState');
+      const hint  = document.getElementById('resultsHint');
+      if (rows.length){
+        $("#tablaRespuesta").style.display = "table";
+        if (empty) empty.style.display = "none";
+        if (hint)  hint.style.display  = "block";
+        applyRowAnims();
+        animatePrices();
+      } else {
+        $("#tablaRespuesta").style.display = "none";
+        if (empty) empty.style.display = "block";
+        if (hint)  hint.style.display  = "none";
+      }
+    }
+
+    selProveedor.addEventListener('change', ()=>{
+      populatePlanSelect(PLANES_CACHE, selProveedor.value);
+      renderResults();
+    });
+    selPlan.addEventListener('change', renderResults);
+
+    // -------- Skeleton helper --------
+    function showSkeletonRows(count=4){
+      const tb = $("#tablaRespuesta tbody");
+      tb.innerHTML = "";
+      for(let i=0;i<count;i++){
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td><div class="skel" style="width:68%"></div></td>
+                        <td><div class="skel" style="width:40%"></div></td>`;
+        tb.appendChild(tr);
+      }
+      $("#tablaRespuesta").style.display = "table";
+      const empty = document.getElementById("emptyState"); if(empty) empty.style.display = "none";
+    }
+
+    // -------- Submit (List<PlanDTO>) --------
+    $("#cotizadorForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      clearFeedback();
+
+      const errs = validar();
+      if (errs.length){
+        $("#msgErr").innerHTML = "Revisá el formulario:<br>• " + errs.join("<br>• ");
+        $("#msgErr").classList.add("show");
+        return;
+      }
+
+      const idPlanSel = (!selPlan.disabled && selPlan.value) ? Number(selPlan.value) : null;
+
+      const payload = {
+        cantidad: Number($("#cantidad").value),
+        edadTitular: Number($("#edadTitular").value),
+        idAfiliacion: Number($("#idAfiliacion").value),
+        generoTitular: $("#generoTitular").value,
+        sueldoBruto: Number($("#idAfiliacion").value) === 1 ? Number($("#sueldoBruto").value) : null,
+        tienePareja: $("#tienePareja").checked,
+        generoPareja: $("#tienePareja").checked ? $("#generoPareja").value : null,
+        edadPareja: $("#tienePareja").checked ? Number($("#edadPareja").value) : null,
+        tieneHijos: $("#tieneHijos").checked,
+        cantidadHijos: $("#tieneHijos").checked ? Number($("#cantidadHijos").value) : 0,
+        proveedor: selProveedor.value || null,
+        idPlan: idPlanSel
+      };
+
+      $("#btnEnviar").disabled = true;
+      $("#btnEnviar").classList.add("loading");
+      const oldText = $("#btnEnviar").textContent;
+      $("#btnEnviar").textContent = "Enviando…";
+
+      // skeleton mientras esperamos
+      showSkeletonRows();
+
+      try{
+        const res = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if(!res.ok) throw new Error(`HTTP ${res.status}: ${await res.text()}`);
+
+        const planes = await res.json(); // List<PlanDTO>
+        PLANES_CACHE = Array.isArray(planes) ? planes : [];
+
+        populatePlanSelect(PLANES_CACHE, selProveedor.value);
+        renderResults();
+
+        // opcional: mostrar toast ok
+        // $("#msgOk").classList.add("show");
+      } catch(err){
+        $("#msgErr").textContent = "Error al cotizar: " + (err?.message || err);
+        $("#msgErr").classList.add("show");
+      } finally{
+        $("#btnEnviar").disabled = false;
+        $("#btnEnviar").classList.remove("loading");
+        $("#btnEnviar").textContent = oldText;
+      }
+    });
+
+    // -------- Limpiar --------
+    document.getElementById("btnLimpiar").addEventListener("click", ()=>{
+      const form = document.getElementById("cotizadorForm");
+      form.reset();
+      togglePareja();
+      toggleHijos();
+      toggleDepFields();
+      clearFeedback();
+    });
+
+    // -------- Tests en consola --------
+    (function runUITests(){
+      try{
+        idAfiliacion.value = "1"; toggleDepFields();
+        console.assert(!document.querySelector('.dep-only.hidden'), 'sueldoBruto visible con dependencia');
+        idAfiliacion.value = "2"; toggleDepFields();
+        console.assert(document.querySelector('.dep-only.hidden'), 'sueldoBruto oculto sin dependencia');
+        chkPareja.checked = true; togglePareja();
+        console.assert(!parejaBox.classList.contains('disabled'), 'pareja habilitada');
+        chkPareja.checked = false; togglePareja();
+        console.assert(parejaBox.classList.contains('disabled'), 'pareja deshabilitada');
+        chkHijos.checked = true; toggleHijos();
+        console.assert(!hijosBox.classList.contains('disabled'), 'hijos habilitado');
+        chkHijos.checked = false; toggleHijos();
+        console.assert(hijosBox.classList.contains('disabled'), 'hijos deshabilitado');
+        console.log('UI tests OK');
+      }catch(err){ console.warn('UI tests FAILED', err); }
+    })();
+  </script>
+</body>
+</html>
+
