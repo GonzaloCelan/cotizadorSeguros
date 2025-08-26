@@ -2,19 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="utf-8" />
-  <title>FrancoSalud – Cotizador</title>
- <meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="manifest" href="/manifest.webmanifest">
-<meta name="theme-color" content="#1e3a8a">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Prepagas San Juan – Cotizador</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      /* Paleta del logo Prepagas San Juan */
-      --brand-blue: #1e3a8a;   /* azul texto del logo */
-      --brand-teal: #12c6c9;   /* turquesa corazón */
-      --brand-mint: #21c78a;   /* verde-menta corazón */
-      --green: var(--brand-teal); /* compat con estilos previos */
+      --brand-blue: #1e3a8a;
+      --brand-teal: #12c6c9;
+      --brand-mint: #21c78a;
+      --green: var(--brand-teal);
       --muted: #6b7280;
       --light-gray: #f1f5f9;
       --ink: #0f172a;
@@ -32,23 +31,40 @@
     .form-wrapper { max-width: 960px; margin: auto; }
     h1 { text-align: center; color: var(--brand-blue); margin-bottom: 2rem; }
 
-    /* ===== Grid EXACTO según el boceto (3 columnas) ===== */
+    /* ===== Selector de grupo familiar ===== */
+    .grupo-familiar-selector {
+      display: flex; gap: 1rem; justify-content: center;
+      margin-bottom: 2rem; flex-wrap: wrap;
+    }
+    .opcion-familiar {
+      padding: 0.6rem 1.4rem; border: 2px solid var(--brand-blue);
+      background: white; color: var(--brand-blue); border-radius: 8px;
+      font-weight: 600; cursor: pointer;
+      transition: background .25s var(--ease), color .25s var(--ease);
+    }
+    .opcion-familiar:hover { background: var(--brand-blue); color: white; }
+    .opcion-familiar.seleccionada {
+      background: linear-gradient(135deg, var(--brand-mint), var(--brand-teal));
+      color: white; border-color: transparent;
+      box-shadow: 0 8px 24px -10px rgba(30,58,138,.35);
+    }
+    .hidden { display: none !important; }
+
+    /* ===== Grid (3 columnas) ===== */
     form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 
-    /* ===== Apariencia de campos con animaciones ===== */
+    /* Apariencia de campos con animaciones */
     .form-group { display: flex; flex-direction: column; opacity: 0; transform: translateY(6px); animation: enter .5s var(--ease) forwards; }
-    /* efecto de aparición escalonado */
     .form-group:nth-of-type(1){animation-delay:.02s} .form-group:nth-of-type(2){animation-delay:.06s} .form-group:nth-of-type(3){animation-delay:.1s}
     .form-group:nth-of-type(4){animation-delay:.14s} .form-group:nth-of-type(5){animation-delay:.18s} .form-group:nth-of-type(6){animation-delay:.22s}
     .form-group:nth-of-type(7){animation-delay:.26s} .form-group:nth-of-type(8){animation-delay:.30s}
 
     label { font-weight: 600; color: var(--brand-blue); font-size: 0.9rem; margin-bottom: 0.35rem; }
 
-    /* Línea inferior animada con turquesa del logo */
     input, select {
       border: none; outline: none; background: transparent; color: var(--ink);
       padding: 0.55rem 0.25rem; font-size: 1rem; position: relative;
-      border-bottom: 2px solid #d1d5db; /* línea base suave */
+      border-bottom: 2px solid #d1d5db;
       transition: border-color .22s var(--ease), transform .18s var(--ease), background-size .22s var(--ease);
       background-image: linear-gradient(90deg, var(--brand-mint), var(--brand-teal));
       background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%;
@@ -56,9 +72,14 @@
     input::placeholder { color: var(--muted); }
     input:focus, select:focus { border-color: transparent; background-size: 100% 2px; transform: translateY(-1px); }
 
+    input:disabled, select:disabled {
+      opacity: .6; cursor: not-allowed;
+      background-image: none; border-bottom: 2px dashed #e5e7eb;
+    }
+
     .full-width { grid-column: 1 / -1; }
 
-    /* ===== Botones con animaciones (ripple + estados) ===== */
+    /* Botones */
     .actions { grid-column: 1 / -1; display: flex; justify-content: start; gap: 1.2rem; margin-top: .25rem; }
     .btn {
       position: relative; overflow: hidden; isolation: isolate;
@@ -69,69 +90,168 @@
     .btn:hover { background: linear-gradient(135deg, var(--brand-mint), var(--brand-teal)); color: #fff; border-color: transparent; box-shadow: 0 12px 26px -16px rgba(30,58,138,.45); }
     .btn:active { transform: translateY(1px) scale(.99); }
     .btn.secondary { background: #fff; color: var(--brand-blue); }
-
-    /* Spinner cuando está en loading */
     .btn.loading { pointer-events:none; opacity:.95 }
     .btn.loading::after { content:''; position:absolute; right:12px; top:50%; width:16px; height:16px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; transform:translateY(-50%); animation: spin .8s linear infinite; }
 
-    /* Efecto ripple */
     .ripple { position:absolute; inset:auto; width:8px; height:8px; border-radius:50%; background: currentColor; opacity:.18; transform: translate(-50%, -50%) scale(1); animation: ripple .6s ease-out forwards; pointer-events:none; z-index:-1; }
 
-    /* ===== Tabla/Grilla con animaciones y estética mejorada ===== */
-    .table-card { margin-top: 1.75rem; border-radius: 16px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); }
+    /* Tabla/Grilla */
+    .table-card { margin-top: 1.75rem; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-    th, td { text-align: left; padding: 14px 20px; }
+    th, td { text-align: left; padding: 10px 14px; }
     thead { background: linear-gradient(90deg, var(--brand-teal) 0%, var(--brand-blue) 100%); color: white; font-weight: 700; letter-spacing:.2px }
     tbody { background: var(--light-gray); }
     tbody tr { transition: background .2s var(--ease); }
     tbody tr:hover { background: #edfafa; }
 
-    /* columnas con ancho fijo para evitar corrimientos */
-    col.col-proveedor { width: 26%; }
-    col.col-plan      { width: 34%; }
-    col.col-num       { width: 20%; }
+    /* columnas (como el boceto) */
+    col.col-proveedor { width: 30%; }
+    col.col-plan      { width: 28%; }
+    col.col-num       { width: 18%; }
+    col.col-estado    { width: 16%; }
+    col.col-detalle   { width: 8%;  }
 
-    /* alineación y dígitos tabulares */
-    th.num, td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
+	col.col-proveedor { width: 12%; }
+    col.col-plan      { width: 12%; }
+    col.col-num       { width: 12%; }
+    col.col-estado    { width: 12%; }
+    col.col-detalle   { width: 12%;  }
+    /* números tabulares */
+    th.num, td.num { text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
     td.price-final { font-weight: 800; color: var(--brand-blue); }
-    td.price-list  { color: #475569; }
 
-    /* Skeleton shimmer para carga */
+    /* Estado en texto */
+    td.estado { text-align: left; }
+
+    /* Link "Ver detalle" */
+    .link-detalle{
+      color: var(--brand-blue);
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .link-detalle:hover{ text-decoration: underline; }
+
+    /* Skeleton y animaciones */
     .skeleton { position: relative; height: 18px; border-radius: 6px; overflow: hidden; background: #e5e7eb; }
     .skeleton::after { content:''; position:absolute; inset:0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: shimmer 1.1s infinite; }
-
-    /* Filas animadas */
     .row-in { opacity:0; transform: translateY(6px); animation: rowIn .45s var(--ease) forwards; }
 
-    /* ===== Keyframes ===== */
+    /* Modal */
+    .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,.5); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
+    .modal-backdrop.show { display:flex; }
+    .modal { width: 100%; max-width: 680px; background: #fff; border-radius: 16px; box-shadow: 0 30px 60px -20px rgba(2,6,23,.45); overflow: hidden; transform: scale(.98) translateY(6px); opacity: 0; animation: modalIn .24s var(--ease) forwards; }
+    .modal header { display:flex; align-items:center; justify-content:space-between; padding: 14px 18px; background: linear-gradient(90deg, var(--brand-teal), var(--brand-blue)); color:#fff; }
+    .modal .content { padding: 16px 18px 20px; line-height: 1.55; }
+    .modal .grid { display:grid; grid-template-columns: 1fr 1fr; gap: .5rem 1rem; }
+    .modal .label { color:#475569; font-weight:600; }
+    .modal .value { text-align:right; font-variant-numeric: tabular-nums; }
+    .modal .total { font-size:1.05rem; font-weight:800; color: var(--brand-blue); text-align:right; }
+    .close-btn { background: transparent; border: 0; color: #fff; font-weight: 800; font-size: 1.1rem; cursor: pointer; }
+
     @keyframes enter { to { opacity:1; transform:none } }
     @keyframes shimmer { 100% { transform: translateX(100%); } }
     @keyframes rowIn { to { opacity:1; transform:none } }
     @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
     @keyframes ripple { to { transform: translate(-50%, -50%) scale(24); opacity:0; } }
+    @keyframes modalIn { to { opacity:1; transform: none; } }
+    
+    /* Ajustes finos de grilla */
+col.col-proveedor { width: 30%; }
+col.col-plan      { width: 28%; }
+col.col-num       { width: 18%; }
+col.col-estado    { width: 16%; }
+col.col-detalle   { width: 8%; }
+
+/* Separador sutil entre filas */
+tbody tr + tr td { border-top: 1px solid #e5e7eb; }
+
+/* Alineaciones */
+th:nth-child(3), td:nth-child(3) { text-align: right; }   /* Precio final a la derecha */
+td:nth-child(4) { text-align: left;  white-space: nowrap; }  /* Estado como texto */
+td:nth-child(5) { text-align: right; white-space: nowrap; }  /* Detalle pegado a la derecha */
+
+/* Evitar saltos y recortar si los textos son largos */
+td:nth-child(1), td:nth-child(2) {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* “Ver detalle” como link */
+.link-detalle{
+  color: var(--brand-blue);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.link-detalle:hover { text-decoration: underline; }
+
+/* --- Fix: que "Ver detalle" no se recorte --- */
+col.col-detalle { width: 120px; }              /* ancho fijo suficiente */
+td:nth-child(5) {                               /* columna Detalle */
+  text-align: right;
+  white-space: nowrap;                          /* no partir en 2 líneas */
+  overflow: visible;                            /* evitar recortes */
+}
+
+/* (Opcional) en pantallas chicas, liberar layout para que fluya */
+@media (max-width: 640px){
+  table { table-layout: auto; }                 /* deja que el contenido mande */
+  col.col-detalle { width: auto; }
+  th, td { padding: 8px 10px; }                 /* un poco más compacto */
+}
   </style>
 </head>
 <body>
   <div class="form-wrapper">
-    <h1>FrancoSalud – Cotizador</h1>
+    <h1>Prepagas San Juan – Cotizador</h1>
 
-    <!-- ===== Formulario (distribución EXACTA del boceto) ===== -->
+    <!-- Selector de grupo familiar -->
+    <div class="grupo-familiar-selector">
+      <button type="button" class="opcion-familiar seleccionada" data-tipo="solo">Para mí</button>
+      <button type="button" class="opcion-familiar" data-tipo="pareja">Para mí y mi pareja</button>
+      <button type="button" class="opcion-familiar" data-tipo="hijos">Para mí y mis hijos</button>
+      <button type="button" class="opcion-familiar" data-tipo="familia">Para mí y mi familia</button>
+    </div>
+
+    <!-- Formulario -->
     <form id="formCotizador">
-      <div class="form-group">
-        <label for="cantidad">Cantidad</label>
-        <input id="cantidad" type="number" min="1" placeholder="" />
-      </div>
-      <div class="form-group">
+      <input type="hidden" id="tipoGrupo" value="solo" />
+
+      <div class="form-group" id="grpEdadTitular">
         <label for="edadTitular">Edad titular</label>
         <input id="edadTitular" type="number" min="0" placeholder="" />
       </div>
-      <div class="form-group">
-        <label for="genero">Género</label>
+
+      <div class="form-group" id="grpGeneroTitular">
+        <label for="genero">Género titular</label>
         <select id="genero">
           <option value="" disabled selected>Seleccionar</option>
           <option value="M">Masculino</option>
           <option value="F">Femenino</option>
         </select>
+      </div>
+
+      <!-- Pareja -->
+      <div class="form-group hidden" id="grpEdadPareja">
+        <label for="edadPareja">Edad pareja</label>
+        <input id="edadPareja" type="number" min="0" placeholder="" disabled />
+      </div>
+      <div class="form-group hidden" id="grpGeneroPareja">
+        <label for="generoPareja">Género pareja</label>
+        <select id="generoPareja" disabled>
+          <option value="" disabled selected>Seleccionar</option>
+          <option value="M">Masculino</option>
+          <option value="F">Femenino</option>
+        </select>
+      </div>
+
+      <!-- Hijos -->
+      <div class="form-group hidden" id="grpCantidadHijos">
+        <label for="cantidadHijos">Cantidad de hijos</label>
+        <input id="cantidadHijos" type="number" min="1" placeholder="0" disabled />
       </div>
 
       <div class="form-group">
@@ -143,10 +263,12 @@
           <option value="3">Particular</option>
         </select>
       </div>
+
       <div class="form-group">
         <label for="sueldo">Sueldo Bruto en $</label>
-        <input id="sueldo" type="number" step="0.01" placeholder="0.00" />
+        <input id="sueldo" type="number" step="0.01" placeholder="0.00" disabled title="Disponible solo para relación de dependencia" />
       </div>
+
       <div class="form-group">
         <label for="proveedor">Proveedor</label>
         <select id="proveedor">
@@ -156,6 +278,7 @@
           <option>Swiss Medical</option>
         </select>
       </div>
+
       <div class="form-group">
         <label for="planes">Planes</label>
         <select id="planes">
@@ -169,33 +292,47 @@
       </div>
     </form>
 
-    <!-- ===== Grilla de resultados ===== -->
+    <!-- Grilla de resultados -->
     <div class="table-card">
       <table id="tablaResultados">
         <colgroup>
           <col class="col-proveedor" />
           <col class="col-plan" />
           <col class="col-num" />
-          <col class="col-num" />
+          <col class="col-estado" />
+          <col class="col-detalle" />
         </colgroup>
         <thead>
           <tr>
             <th>Proveedor</th>
-            <th>Plan</th>
-            <th class="num">Precio lista</th>
+            <th>Planes</th>
             <th class="num">Precio final</th>
+            <th>Estado</th>
+            <th>Detalle</th>
           </tr>
         </thead>
         <tbody id="tbodyResultados">
-          <!-- placeholder inicial -->
-          <tr><td colspan="4"><div class="skeleton" style="height:200px"></div></td></tr>
+          <tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>
         </tbody>
       </table>
     </div>
   </div>
 
+  <!-- Modal de detalle -->
+  <div id="detalleBackdrop" class="modal-backdrop" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detalleTitulo">
+      <header>
+        <h3 id="detalleTitulo" style="margin:0;font-size:1.05rem;">Detalle del plan</h3>
+        <button class="close-btn" type="button" id="cerrarDetalle">&times;</button>
+      </header>
+      <div class="content" id="detalleContenido">
+        <!-- Se completa vía JS -->
+      </div>
+    </div>
+  </div>
+
   <script>
-    // Util: ripple en botones
+    // Ripple en botones principales
     function attachRipple(btn){
       btn.addEventListener('click', (e)=>{
         const r = document.createElement('span');
@@ -207,98 +344,259 @@
         setTimeout(()=> r.remove(), 650);
       });
     }
-    document.querySelectorAll('.btn').forEach(attachRipple);
+    document.querySelectorAll('.btn, .opcion-familiar').forEach(attachRipple);
 
+    // Helpers
+    function setVisible(groupId, show){
+      const el = document.getElementById(groupId);
+      if(!el) return;
+      el.classList.toggle('hidden', !show);
+      el.querySelectorAll('input, select').forEach(i => i.disabled = !show);
+    }
+    function computeCantidad(tipo, cantHijos){
+      if (tipo === 'solo')   return 1;
+      if (tipo === 'pareja') return 2;
+      if (tipo === 'hijos')  return 1 + (cantHijos || 0);
+      if (tipo === 'familia')return 2 + (cantHijos || 0);
+      return 1;
+    }
+
+    // Manejo de selección familiar
+    function aplicarTipo(tipo){
+      setVisible('grpEdadTitular', true);
+      setVisible('grpGeneroTitular', true);
+      setVisible('grpEdadPareja', false);
+      setVisible('grpGeneroPareja', false);
+      setVisible('grpCantidadHijos', false);
+
+      if(tipo === 'pareja'){
+        setVisible('grpEdadPareja', true);
+        setVisible('grpGeneroPareja', true);
+      } else if(tipo === 'hijos'){
+        setVisible('grpCantidadHijos', true);
+      } else if(tipo === 'familia'){
+        setVisible('grpEdadPareja', true);
+        setVisible('grpGeneroPareja', true);
+        setVisible('grpCantidadHijos', true);
+      }
+      document.getElementById('tipoGrupo').value = tipo;
+    }
+    document.querySelectorAll('.opcion-familiar').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.opcion-familiar').forEach(b => b.classList.remove('seleccionada'));
+        btn.classList.add('seleccionada');
+        aplicarTipo(btn.dataset.tipo);
+      });
+    });
+
+    // Afiliación: habilitar sueldo solo para relación de dependencia
+    const afiliacion = document.getElementById('afiliacion');
+    const sueldo = document.getElementById('sueldo');
+    function syncSueldoEstado(){
+      if(afiliacion.value === '1'){ sueldo.disabled = false; }
+      else { sueldo.value = ''; sueldo.disabled = true; }
+    }
+    afiliacion.addEventListener('change', syncSueldoEstado);
+
+    // Mapeo Proveedor -> ID (ajustar a tu DB si difiere)
+    const PROVEEDOR_ID = {
+      "Jerárquicos": 1,
+      "DoctoRed": 2,
+      "Swiss Medical": 3
+    };
+
+    // ----- Lógica principal -----
     const form  = document.getElementById('formCotizador');
     const tbody = document.getElementById('tbodyResultados');
     const btn   = document.getElementById('btnCotizar');
     const btnL  = document.getElementById('btnLimpiar');
     const fmtAR = new Intl.NumberFormat('es-AR', {style:'currency', currency:'ARS'});
 
+    let __ULTIMOS_RESULTADOS = [];
+
     function showSkeleton(rows=4){
       tbody.innerHTML = '';
       for(let i=0;i<rows;i++){
         const tr = document.createElement('tr');
-        const td1 = document.createElement('td');
-        const td2 = document.createElement('td');
-        const td3 = document.createElement('td');
-        const td4 = document.createElement('td');
-        td1.innerHTML = '<div class="skeleton" style="width:40%;height:16px"></div>';
-        td2.innerHTML = '<div class="skeleton" style="width:70%;height:16px"></div>';
-        td3.innerHTML = '<div class="skeleton" style="width:50%;height:16px"></div>';
-        td4.innerHTML = '<div class="skeleton" style="width:50%;height:16px"></div>';
-        td3.className = 'num';
-        td4.className = 'num';
-        tr.appendChild(td1); tr.appendChild(td2); tr.appendChild(td3); tr.appendChild(td4);
+        tr.innerHTML = `
+          <td><div class="skeleton" style="width:40%;height:16px"></div></td>
+          <td><div class="skeleton" style="width:70%;height:16px"></div></td>
+          <td><div class="skeleton" style="width:50%;height:16px"></div></td>
+          <td><div class="skeleton" style="width:40%;height:16px"></div></td>
+          <td><div class="skeleton" style="width:60%;height:16px"></div></td>`;
         tbody.appendChild(tr);
       }
     }
 
+    function estadoTexto(e){
+      if(!e) return '—';
+      e = String(e).replace(/_/g,' ').toLowerCase();
+      return e.charAt(0).toUpperCase() + e.slice(1);
+    }
+    function num(n){ return Number(n || 0); }
+
     function renderRows(data){
       tbody.innerHTML = '';
-      data.forEach((row, i)=>{
+      const items = Array.isArray(data) ? data : (data.items || []);
+      __ULTIMOS_RESULTADOS = items;
+
+      if (!items.length){
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#64748b">Sin resultados</td></tr>';
+        return;
+      }
+
+      items.forEach((p, i)=>{
+        const precioFinal = num(p.valorFinal ?? p.precioFinal ?? p.valor);
         const tr = document.createElement('tr');
         tr.className = 'row-in';
         tr.style.animationDelay = (i*70)+'ms';
-
-        const tdProv  = document.createElement('td');
-        const tdPlan  = document.createElement('td');
-        const tdLista = document.createElement('td');
-        const tdFinal = document.createElement('td');
-
-        const lista = Number(row.precioLista ?? row.precio ?? 0);
-        const final = Number(row.precioFinal ?? row.precio ?? 0);
-
-        tdProv.textContent  = row.proveedor;
-        tdPlan.textContent  = row.plan;
-
-        tdLista.textContent = fmtAR.format(lista);
-        tdFinal.textContent = fmtAR.format(final);
-
-        tdLista.className = 'num price-list';
-        tdFinal.className = 'num price-final';
-
-        tr.appendChild(tdProv); tr.appendChild(tdPlan); tr.appendChild(tdLista); tr.appendChild(tdFinal);
+        tr.innerHTML = `
+          <td>${p.proveedor ?? ''}</td>
+          <td>${p.nombrePlan ?? p.plan ?? ''}</td>
+          <td class="price-final">${fmtAR.format(precioFinal)}</td>
+          <td class="estado">${estadoTexto(p.estado)}</td>
+          <td><a href="#" class="link-detalle" onclick="abrirDetalle(${i});return false;">Ver detalle</a></td>
+        `;
         tbody.appendChild(tr);
       });
     }
 
-    // Demo de animaciones: simula envío y carga
-    form.addEventListener('submit', (e)=>{
+    async function postConsultar(body){
+      const res = await fetch('/api/cotizador/consultar', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(body)
+      });
+      if(!res.ok){
+        const txt = await res.text();
+        throw new Error(txt || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    function buildRequestDTO(){
+      const tipo = document.getElementById('tipoGrupo').value;
+      const tienePareja = (tipo === 'pareja' || tipo === 'familia');
+      const tieneHijos  = (tipo === 'hijos'  || tipo === 'familia');
+      const cantHijos   = tieneHijos && !document.getElementById('grpCantidadHijos').classList.contains('hidden')
+                          ? Number(document.getElementById('cantidadHijos').value || 0)
+                          : 0;
+
+      const proveedorTxt = document.getElementById('proveedor').value || '';
+      const idProveedor  = PROVEEDOR_ID[proveedorTxt] || 0;
+      const idPlan       = Number(document.getElementById('planes').value || 0);
+
+      return {
+        cantidad:        computeCantidad(tipo, cantHijos),
+        edadTitular:     Number(document.getElementById('edadTitular').value || 0),
+        generoTitular:   document.getElementById('genero').value || '',
+        tienePareja:     tienePareja,
+        generoPareja:    tienePareja ? (document.getElementById('generoPareja').value || 'N/A') : 'N/A',
+        edadPareja:      tienePareja ? Number(document.getElementById('edadPareja').value || 0) : 0,
+        tieneHijos:      tieneHijos,
+        cantidadHijos:   tieneHijos ? cantHijos : 0,
+        idAfiliacion:    Number(document.getElementById('afiliacion').value || 0),
+        sueldoBruto:     !sueldo.disabled ? Number(sueldo.value || 0) : 0,
+        idProveedor:     idProveedor,
+        idPlan:          idPlan
+      };
+    }
+
+    form.addEventListener('submit', async (e)=>{
       e.preventDefault();
       btn.classList.add('loading');
       showSkeleton(5);
-      // Simulación de red: reemplazá este setTimeout por tu fetch al backend
-      setTimeout(()=>{
-        const demo = [
-          {proveedor:'Jerárquicos',   plan:'Plan A', precioLista: 120000, precioFinal: 95000},
-          {proveedor:'DoctoRed',      plan:'Classic',  precioLista: 112000, precioFinal: 102300},
-          {proveedor:'Swiss Medical', plan:'SMG 21',   precioLista: 118700, precioFinal: 118700},
-          {proveedor:'Jerárquicos',   plan:'Plan B',   precioLista: 146000, precioFinal: 131200},
-          {proveedor:'DoctoRed',      plan:'Premium',  precioLista: 171000, precioFinal: 158900}
-        ];
-        renderRows(demo);
+      try {
+        const dto = buildRequestDTO();
+        const data = await postConsultar(dto);
+        renderRows(data);
+      } catch (err) {
+        console.error(err);
+        tbody.innerHTML = `<tr><td colspan="5" style="color:#b91c1c;padding:1rem">No pudimos cotizar: ${String(err.message).slice(0,300)}</td></tr>`;
+      } finally {
         btn.classList.remove('loading');
-      }, 1100);
+      }
     });
 
     btnL.addEventListener('click', ()=>{
       form.reset();
-      showSkeleton(1); // vuelve al placeholder
+      document.querySelectorAll('.opcion-familiar').forEach(b => b.classList.remove('seleccionada'));
+      document.querySelector('.opcion-familiar[data-tipo="solo"]').classList.add('seleccionada');
+      aplicarTipo('solo');
+      syncSueldoEstado();
+      tbody.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>';
     });
 
+    // ----- Modal -----
+    const backdrop = document.getElementById('detalleBackdrop');
+    const cerrarDetalleBtn = document.getElementById('cerrarDetalle');
+    const detalleContenido = document.getElementById('detalleContenido');
+
+    function abrirDetalle(index){
+      const p = __ULTIMOS_RESULTADOS[index] || {};
+      const num = (n)=>Number(n||0);
+      const fmt = (v)=> new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(Number(v||0));
+
+      const precioBase   = num(p.valorPlan);
+      const recargoEdad  = num(p.recargoEdad);
+      const bonificacion = num(p.bonificacion ?? p.Bonificacion);
+      const subtotal     = precioBase + recargoEdad - bonificacion;
+      const sueldoBruto  = num(p.sueldoBruto);
+      const aporte       = num(p.aporteObraSocial);
+      const totalFinal   = num(p.valorFinal ?? p.precioFinal ?? p.valor);
+
+      const prov   = p.proveedor ?? '';
+      const nombre = p.nombrePlan ?? p.plan ?? '';
+      const afiMap = {1:'Relación de dependencia',2:'Monotributista',3:'Particular'};
+      const afi    = afiMap[Number(p.afiliacion)] || (p.afiliacion ?? '');
+      const cant   = p.cantidadPersona ?? p.cantidad ?? 1;
+
+      document.getElementById('detalleTitulo').textContent = `Detalle – ${nombre} ${prov ? '· '+prov : ''}`;
+
+      detalleContenido.innerHTML = `
+        <div class="grid" style="margin-bottom:.25rem">
+          <div class="label">Precio base</div><div class="value">${precioBase?fmt(precioBase):'—'}</div>
+          <div class="label">Recargo por edad</div><div class="value">${recargoEdad?fmt(recargoEdad):'—'}</div>
+          <div class="label">Bonificación</div><div class="value">${bonificacion?'-'+fmt(bonificacion):'—'}</div>
+          <div class="label">Subtotal</div><div class="value">${fmt(subtotal)}</div>
+        </div>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
+        <div class="grid" style="margin-bottom:.25rem">
+          <div class="label">Sueldo bruto</div><div class="value">${sueldoBruto?fmt(sueldoBruto):'—'}</div>
+          <div class="label">Aporte obra social (7,65%)</div><div class="value">${aporte?'-'+fmt(aporte):'—'}</div>
+        </div>
+        <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
+        <div class="grid">
+          <div class="label">Afiliación</div><div class="value">${afi}</div>
+          <div class="label">Personas</div><div class="value">${cant}</div>
+          <div class="label">Total a pagar</div><div class="total">${fmt(totalFinal)}</div>
+        </div>
+      `;
+
+      backdrop.classList.add('show');
+      backdrop.setAttribute('aria-hidden','false');
+    }
+    window.abrirDetalle = abrirDetalle;
+
+    function cerrarDetalle(){
+      backdrop.classList.remove('show');
+      backdrop.setAttribute('aria-hidden','true');
+    }
+    cerrarDetalleBtn.addEventListener('click', cerrarDetalle);
+    backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) cerrarDetalle(); });
+
     // Estado inicial
-    showSkeleton(1);
+    aplicarTipo('solo');
+    syncSueldoEstado();
+    tbody.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>';
   </script>
+
   <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(console.error);
-  });
-}
-</script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(console.error);
+      });
+    }
+  </script>
 </body>
 </html>
-
-
-

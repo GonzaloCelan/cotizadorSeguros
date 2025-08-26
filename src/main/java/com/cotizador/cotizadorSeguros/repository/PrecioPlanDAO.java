@@ -98,7 +98,7 @@ public class PrecioPlanDAO {
 	               ResultadoCotizacion r = new ResultadoCotizacion();
 	               r.setIdPlan(rs.getInt("id_plan"));
 	               r.setNombrePlan(rs.getString("nombre_plan"));
-	               r.setValor(rs.getBigDecimal("valor"));
+	               r.setValor(rs.getBigDecimal("valorFinal"));
 	               resultados.add(r);
 	            }
 	            
