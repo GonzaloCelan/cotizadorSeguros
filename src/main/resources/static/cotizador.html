@@ -95,8 +95,14 @@
 
     .ripple { position:absolute; inset:auto; width:8px; height:8px; border-radius:50%; background: currentColor; opacity:.18; transform: translate(-50%, -50%) scale(1); animation: ripple .6s ease-out forwards; pointer-events:none; z-index:-1; }
 
+    /* Iconos en los tabs */
+    .opcion-familiar { display: inline-flex; align-items: center; gap: .6rem; }
+    .fam-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; line-height: 0; }
+    .opcion-familiar svg { width: 100%; height: 100%; }
+    @media (max-width: 560px){ .opcion-familiar { flex-direction: column; gap: .35rem; } .fam-icon { width: 32px; height: 32px; } }
+
     /* Tabla/Grilla */
-    .table-card { margin-top: 1.75rem; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); }
+    .table-card { margin-top: 1.75rem; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); padding:16px; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
     th, td { text-align: left; padding: 10px 14px; }
     thead { background: linear-gradient(90deg, var(--brand-teal) 0%, var(--brand-blue) 100%); color: white; font-weight: 700; letter-spacing:.2px }
@@ -111,11 +117,12 @@
     col.col-estado    { width: 16%; }
     col.col-detalle   { width: 8%;  }
 
-	col.col-proveedor { width: 12%; }
+    col.col-proveedor { width: 12%; }
     col.col-plan      { width: 12%; }
     col.col-num       { width: 12%; }
     col.col-estado    { width: 12%; }
     col.col-detalle   { width: 12%;  }
+
     /* números tabulares */
     th.num, td.num { text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
     td.price-final { font-weight: 800; color: var(--brand-blue); }
@@ -156,52 +163,49 @@
     @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
     @keyframes ripple { to { transform: translate(-50%, -50%) scale(24); opacity:0; } }
     @keyframes modalIn { to { opacity:1; transform: none; } }
-    
+
     /* Ajustes finos de grilla */
-col.col-proveedor { width: 30%; }
-col.col-plan      { width: 28%; }
-col.col-num       { width: 18%; }
-col.col-estado    { width: 16%; }
-col.col-detalle   { width: 8%; }
+    col.col-proveedor { width: 30%; }
+    col.col-plan      { width: 28%; }
+    col.col-num       { width: 18%; }
+    col.col-estado    { width: 16%; }
+    col.col-detalle   { width: 8%; }
 
-/* Separador sutil entre filas */
-tbody tr + tr td { border-top: 1px solid #e5e7eb; }
+    /* Separador sutil entre filas */
+    tbody tr + tr td { border-top: 1px solid #e5e7eb; }
 
-/* Alineaciones */
-th:nth-child(3), td:nth-child(3) { text-align: right; }   /* Precio final a la derecha */
-td:nth-child(4) { text-align: left;  white-space: nowrap; }  /* Estado como texto */
-td:nth-child(5) { text-align: right; white-space: nowrap; }  /* Detalle pegado a la derecha */
+    /* Alineaciones */
+    th:nth-child(3), td:nth-child(3) { text-align: right; }
+    td:nth-child(4) { text-align: left;  white-space: nowrap; }
+    td:nth-child(5) { text-align: right; white-space: nowrap; }
 
-/* Evitar saltos y recortar si los textos son largos */
-td:nth-child(1), td:nth-child(2) {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+    td:nth-child(1), td:nth-child(2) {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-/* “Ver detalle” como link */
-.link-detalle{
-  color: var(--brand-blue);
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-}
-.link-detalle:hover { text-decoration: underline; }
+    .link-detalle{ color: var(--brand-blue); font-weight: 700; text-decoration: none; cursor: pointer; }
+    .link-detalle:hover { text-decoration: underline; }
 
-/* --- Fix: que "Ver detalle" no se recorte --- */
-col.col-detalle { width: 120px; }              /* ancho fijo suficiente */
-td:nth-child(5) {                               /* columna Detalle */
-  text-align: right;
-  white-space: nowrap;                          /* no partir en 2 líneas */
-  overflow: visible;                            /* evitar recortes */
-}
+    col.col-detalle { width: 120px; }
+    td:nth-child(5) { text-align: right; white-space: nowrap; overflow: visible; }
 
-/* (Opcional) en pantallas chicas, liberar layout para que fluya */
-@media (max-width: 640px){
-  table { table-layout: auto; }                 /* deja que el contenido mande */
-  col.col-detalle { width: auto; }
-  th, td { padding: 8px 10px; }                 /* un poco más compacto */
-}
+    @media (max-width: 640px){
+      table { table-layout: auto; }
+      col.col-detalle { width: auto; }
+      th, td { padding: 8px 10px; }
+    }
+
+    /* Empty state */
+    .empty-state{
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:6px; text-align:center; padding:32px 16px; border:1.5px dashed #cbd5e1; border-radius:12px;
+      background:linear-gradient(180deg,#f8fafc,#f1f5f9); color:#475569;
+    }
+    .empty-state svg{ opacity:.6; }
+    .empty-title{ margin:4px 0 0; font-weight:600; }
+    .empty-sub{ margin:0; font-size:.95rem; color:#64748b; }
   </style>
 </head>
 <body>
@@ -210,10 +214,57 @@ td:nth-child(5) {                               /* columna Detalle */
 
     <!-- Selector de grupo familiar -->
     <div class="grupo-familiar-selector">
-      <button type="button" class="opcion-familiar seleccionada" data-tipo="solo">Para mí</button>
-      <button type="button" class="opcion-familiar" data-tipo="pareja">Para mí y mi pareja</button>
-      <button type="button" class="opcion-familiar" data-tipo="hijos">Para mí y mis hijos</button>
-      <button type="button" class="opcion-familiar" data-tipo="familia">Para mí y mi familia</button>
+      <button type="button" class="opcion-familiar seleccionada" data-tipo="solo" aria-pressed="true">
+        <span class="fam-icon" aria-hidden="true">
+          <!-- Solo -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="7" r="3"></circle>
+            <path d="M5 21c0-3.3 3.6-6 7-6s7 2.7 7 6"></path>
+          </svg>
+        </span>
+        <span>Para mí</span>
+      </button>
+      
+      <button type="button" class="opcion-familiar" data-tipo="pareja" aria-pressed="false">
+        <span class="fam-icon" aria-hidden="true">
+          <!-- Pareja -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="8" cy="7" r="3"></circle>
+            <circle cx="16" cy="7" r="3"></circle>
+            <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
+            <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
+          </svg>
+        </span>
+        <span>Para mí y mi pareja</span>
+      </button>
+
+      <button type="button" class="opcion-familiar" data-tipo="hijos" aria-pressed="false">
+        <span class="fam-icon" aria-hidden="true">
+          <!-- Adulto + hijo -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="6.5" r="3"></circle>
+            <path d="M3 21c0-3.5 3-6 6-6s6 2.5 6 6"></path>
+            <circle cx="18" cy="10.5" r="2"></circle>
+            <path d="M16 21c0-2.2 1.8-4 4-4"></path>
+          </svg>
+        </span>
+        <span>Para mí y mis hijos</span>
+      </button>
+
+      <button type="button" class="opcion-familiar" data-tipo="familia" aria-pressed="false">
+        <span class="fam-icon" aria-hidden="true">
+          <!-- Familia -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="7" cy="6.5" r="3"></circle>
+            <circle cx="17" cy="6.5" r="3"></circle>
+            <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
+            <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
+            <circle cx="12" cy="11.5" r="2"></circle>
+            <path d="M9.5 21c0-2.2 2.1-4 4.5-4"></path>
+          </svg>
+        </span>
+        <span>Para mí y mi familia</span>
+      </button>
     </div>
 
     <!-- Formulario -->
@@ -269,23 +320,6 @@ td:nth-child(5) {                               /* columna Detalle */
         <input id="sueldo" type="number" step="0.01" placeholder="0.00" disabled title="Disponible solo para relación de dependencia" />
       </div>
 
-      <div class="form-group">
-        <label for="proveedor">Proveedor</label>
-        <select id="proveedor">
-          <option value="" selected>Seleccionar</option>
-          <option>Jerárquicos</option>
-          <option>DoctoRed</option>
-          <option>Swiss Medical</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="planes">Planes</label>
-        <select id="planes">
-          <option value="" selected>Seleccionar</option>
-        </select>
-      </div>
-
       <div class="actions">
         <button class="btn" id="btnCotizar" type="submit">Obtener cotización</button>
         <button class="btn secondary" id="btnLimpiar" type="button">Limpiar</button>
@@ -294,7 +328,14 @@ td:nth-child(5) {                               /* columna Detalle */
 
     <!-- Grilla de resultados -->
     <div class="table-card">
-      <table id="tablaResultados">
+      <!-- Empty state visible al inicio -->
+      <div id="emptyState" class="empty-state">
+        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 14a1 1 0 1 1-1 1 1 1 0 0 1 1-1Zm1-3h-2a1 1 0 0 1-1-1V7a1 1 0 0 1 2 0v4h1a1 1 0 0 1 0 2Z"/></svg>
+        <p class="empty-title">Todavía no se realizaron cotizaciones</p>
+        <p class="empty-sub">Completá el formulario y tocá <strong>“Obtener cotización”</strong>.</p>
+      </div>
+
+      <table id="tablaResultados" hidden>
         <colgroup>
           <col class="col-proveedor" />
           <col class="col-plan" />
@@ -311,9 +352,7 @@ td:nth-child(5) {                               /* columna Detalle */
             <th>Detalle</th>
           </tr>
         </thead>
-        <tbody id="tbodyResultados">
-          <tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>
-        </tbody>
+        <tbody id="tbodyResultados"></tbody>
       </table>
     </div>
   </div>
@@ -412,9 +451,23 @@ td:nth-child(5) {                               /* columna Detalle */
     const btnL  = document.getElementById('btnLimpiar');
     const fmtAR = new Intl.NumberFormat('es-AR', {style:'currency', currency:'ARS'});
 
+    // Nuevo: refs para empty state y tabla
+    const empty = document.getElementById('emptyState');
+    const table = document.getElementById('tablaResultados');
+
     let __ULTIMOS_RESULTADOS = [];
 
+    function showTable(){ table.hidden = false; empty.style.display = 'none'; }
+    function showEmpty(msg){
+      table.hidden = true;
+      empty.style.display = 'flex';
+      const title = empty.querySelector('.empty-title');
+      const sub = empty.querySelector('.empty-sub');
+      if(msg){ title.textContent = msg; sub.textContent = 'Proba cambiar la afiliación o los datos ingresados.'; }
+    }
+
     function showSkeleton(rows=4){
+      showTable();
       tbody.innerHTML = '';
       for(let i=0;i<rows;i++){
         const tr = document.createElement('tr');
@@ -436,15 +489,17 @@ td:nth-child(5) {                               /* columna Detalle */
     function num(n){ return Number(n || 0); }
 
     function renderRows(data){
-      tbody.innerHTML = '';
       const items = Array.isArray(data) ? data : (data.items || []);
       __ULTIMOS_RESULTADOS = items;
 
       if (!items.length){
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1rem;color:#64748b">Sin resultados</td></tr>';
+        showEmpty('No encontramos planes con esos datos');
+        tbody.innerHTML = '';
         return;
       }
 
+      showTable();
+      tbody.innerHTML = '';
       items.forEach((p, i)=>{
         const precioFinal = num(p.valorFinal ?? p.precioFinal ?? p.valor);
         const tr = document.createElement('tr');
@@ -482,9 +537,9 @@ td:nth-child(5) {                               /* columna Detalle */
                           ? Number(document.getElementById('cantidadHijos').value || 0)
                           : 0;
 
-      const proveedorTxt = document.getElementById('proveedor').value || '';
+      const proveedorTxt = document.getElementById('proveedor')?.value || '';
       const idProveedor  = PROVEEDOR_ID[proveedorTxt] || 0;
-      const idPlan       = Number(document.getElementById('planes').value || 0);
+      const idPlan       = Number(document.getElementById('planes')?.value || 0);
 
       return {
         cantidad:        computeCantidad(tipo, cantHijos),
@@ -512,6 +567,7 @@ td:nth-child(5) {                               /* columna Detalle */
         renderRows(data);
       } catch (err) {
         console.error(err);
+        table.hidden = false; // mostrar tabla para ver el mensaje
         tbody.innerHTML = `<tr><td colspan="5" style="color:#b91c1c;padding:1rem">No pudimos cotizar: ${String(err.message).slice(0,300)}</td></tr>`;
       } finally {
         btn.classList.remove('loading');
@@ -524,7 +580,8 @@ td:nth-child(5) {                               /* columna Detalle */
       document.querySelector('.opcion-familiar[data-tipo="solo"]').classList.add('seleccionada');
       aplicarTipo('solo');
       syncSueldoEstado();
-      tbody.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>';
+      showEmpty('Todavía no se realizaron cotizaciones');
+      tbody.innerHTML = '';
     });
 
     // ----- Modal -----
@@ -532,49 +589,81 @@ td:nth-child(5) {                               /* columna Detalle */
     const cerrarDetalleBtn = document.getElementById('cerrarDetalle');
     const detalleContenido = document.getElementById('detalleContenido');
 
-    function abrirDetalle(index){
+    async function postDetalle(id, body){
+      const res = await fetch(`/api/cotizador/detalle/${id}`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(body)
+      });
+      if(!res.ok){
+        const txt = await res.text();
+        throw new Error(txt || `HTTP ${res.status}`);
+      }
+      return res.json();
+    }
+
+    async function abrirDetalle(index){
       const p = __ULTIMOS_RESULTADOS[index] || {};
-      const num = (n)=>Number(n||0);
-      const fmt = (v)=> new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(Number(v||0));
+      const id = Number(p.idPlan ?? p.id ?? 0);
+      if(!id){
+        alert('No encontramos el ID del plan.');
+        return;
+      }
 
-      const precioBase   = num(p.valorPlan);
-      const recargoEdad  = num(p.recargoEdad);
-      const bonificacion = num(p.bonificacion ?? p.Bonificacion);
-      const subtotal     = precioBase + recargoEdad - bonificacion;
-      const sueldoBruto  = num(p.sueldoBruto);
-      const aporte       = num(p.aporteObraSocial);
-      const totalFinal   = num(p.valorFinal ?? p.precioFinal ?? p.valor);
-
-      const prov   = p.proveedor ?? '';
-      const nombre = p.nombrePlan ?? p.plan ?? '';
+      const fmt = (v)=> (v !== null && v !== undefined)
+        ? new Intl.NumberFormat('es-AR',{style:'currency',currency:'ARS'}).format(Number(v))
+        : '—';
       const afiMap = {1:'Relación de dependencia',2:'Monotributista',3:'Particular'};
-      const afi    = afiMap[Number(p.afiliacion)] || (p.afiliacion ?? '');
-      const cant   = p.cantidadPersona ?? p.cantidad ?? 1;
 
-      document.getElementById('detalleTitulo').textContent = `Detalle – ${nombre} ${prov ? '· '+prov : ''}`;
-
+      document.getElementById('detalleTitulo').textContent =
+        `Detalle – ${(p.nombrePlan ?? p.plan ?? '')}${p.proveedor ? ' · '+p.proveedor : ''}`;
       detalleContenido.innerHTML = `
-        <div class="grid" style="margin-bottom:.25rem">
-          <div class="label">Precio base</div><div class="value">${precioBase?fmt(precioBase):'—'}</div>
-          <div class="label">Recargo por edad</div><div class="value">${recargoEdad?fmt(recargoEdad):'—'}</div>
-          <div class="label">Bonificación</div><div class="value">${bonificacion?'-'+fmt(bonificacion):'—'}</div>
-          <div class="label">Subtotal</div><div class="value">${fmt(subtotal)}</div>
-        </div>
-        <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
-        <div class="grid" style="margin-bottom:.25rem">
-          <div class="label">Sueldo bruto</div><div class="value">${sueldoBruto?fmt(sueldoBruto):'—'}</div>
-          <div class="label">Aporte obra social (7,65%)</div><div class="value">${aporte?'-'+fmt(aporte):'—'}</div>
-        </div>
-        <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
         <div class="grid">
-          <div class="label">Afiliación</div><div class="value">${afi}</div>
-          <div class="label">Personas</div><div class="value">${cant}</div>
-          <div class="label">Total a pagar</div><div class="total">${fmt(totalFinal)}</div>
+          <div class="label">Precio base</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
+          <div class="label">Sueldo bruto</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
+          <div class="label">Aporte obra social</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
+          <div class="label">Total a pagar</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
         </div>
       `;
-
       backdrop.classList.add('show');
       backdrop.setAttribute('aria-hidden','false');
+
+      try {
+        const dto = buildRequestDTO();
+        const det = await postDetalle(id, dto);
+
+        const fila = (label, val, opts={prefijo:''}) =>
+          (val !== null && val !== undefined && Number(val) !== 0)
+            ? `<div class="label">${label}</div><div class="value">${opts.prefijo}${fmt(val)}</div>`
+            : '';
+
+        detalleContenido.innerHTML = `
+          <div class="grid" style="margin-bottom:.25rem">
+            <div class="label">Precio base</div><div class="value">${fmt(det.valorPlan)}</div>
+            ${fila('1er hijo', det.valorHijo)}
+            ${fila('Hijo adicional', det.valorHijoAdicional)}
+          </div>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
+
+          <div class="grid" style="margin-bottom:.25rem">
+            <div class="label">Sueldo bruto</div><div class="value">${fmt(det.sueldoBruto)}</div>
+            ${fila('Aporte obra social', det.aporteObraSocial, {prefijo:'-'})}
+          </div>
+
+          <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
+
+          <div class="grid">
+            <div class="label">Afiliación</div><div class="value">${afiMap[Number(det.afiliacion)] ?? '—'}</div>
+            <div class="label">Personas</div><div class="value">${det.cantidadPersona ?? '—'}</div>
+            <div class="label">Total a pagar</div><div class="total">${fmt(det.valorFinal)}</div>
+          </div>
+        `;
+      } catch (err) {
+        console.error(err);
+        detalleContenido.innerHTML =
+          `<div style="color:#b91c1c">No pudimos cargar el detalle: ${String(err.message).slice(0,300)}</div>`;
+      }
     }
     window.abrirDetalle = abrirDetalle;
 
@@ -588,7 +677,7 @@ td:nth-child(5) {                               /* columna Detalle */
     // Estado inicial
     aplicarTipo('solo');
     syncSueldoEstado();
-    tbody.innerHTML = '<tr><td colspan="5"><div class="skeleton" style="height:200px"></div></td></tr>';
+    showEmpty('Todavía no se realizaron cotizaciones');
   </script>
 
   <script>
@@ -600,3 +689,4 @@ td:nth-child(5) {                               /* columna Detalle */
   </script>
 </body>
 </html>
+

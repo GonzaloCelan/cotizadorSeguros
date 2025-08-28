@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.cotizador.cotizadorSeguros.dto.request.ConsultaRequestDTO;
 import com.cotizador.cotizadorSeguros.dto.response.PlanDTO;
+import com.cotizador.cotizadorSeguros.dto.response.PlanDetalleDTO;
 import com.cotizador.cotizadorSeguros.model.ClienteConsulta;
 import com.cotizador.cotizadorSeguros.service.IPrecioPlanService;
 
@@ -59,6 +60,21 @@ public class ClienteController {
 			ClienteConsulta cliente = mapToClienteConsulta(request);
 			    
 			PlanDTO resultado = service.cotizarPlanId(proveedor, cliente, id);
+			
+			return ResponseEntity.ok(resultado);
+
+	    }
+		
+		@PostMapping
+		("/detalle/{id}")
+		  
+	    public ResponseEntity<PlanDetalleDTO> consultarPlanDetalleById(
+	    		@PathVariable int id,
+	    		@RequestBody @Valid ConsultaRequestDTO request) {
+			    
+			ClienteConsulta cliente = mapToClienteConsulta(request);
+			
+			PlanDetalleDTO resultado = service.DetallePlanById(cliente, id);
 			
 			return ResponseEntity.ok(resultado);
 

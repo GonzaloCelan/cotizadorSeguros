@@ -57,7 +57,14 @@ public class PrecioPlanDAO {
 	               ResultadoCotizacion r = new ResultadoCotizacion();
 	               r.setIdPlan(rs.getInt("id_plan"));
 	               r.setNombrePlan(rs.getString("nombre_plan"));
-	               r.setValor(rs.getBigDecimal("valor"));
+	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	               r.setValorHijo(rs.getBigDecimal("valorHijo"));
+	               r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	               r.setAfiliacion(rs.getInt("afiliacion"));
+	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
 	               resultados.add(r);
 	            }
 	            
@@ -79,7 +86,7 @@ public class PrecioPlanDAO {
 
 	        try (Connection conn = dataSource.getConnection()) {
 	        	
-	            String sql = "{CALL sp_cotizadorDoctoRed(?, ?, ?, ?, ?, ?)}";
+	            String sql = "{CALL sp_cotizadorDoctoRed(?, ?, ?, ?, ?)}";
 	            
 	            CallableStatement stmt = conn.prepareCall(sql);
 	            
@@ -89,7 +96,7 @@ public class PrecioPlanDAO {
 	            stmt.setBoolean(3, cliente.isTieneHijos());
 	            stmt.setInt(4, cliente.getCantidadHijos());
 	            stmt.setInt(5, cliente.getIdAfiliacion());
-	            stmt.setDouble(6,cliente.getSueldoBruto());
+	          
 	           
 
 	            ResultSet rs = stmt.executeQuery(); 
@@ -98,7 +105,14 @@ public class PrecioPlanDAO {
 	               ResultadoCotizacion r = new ResultadoCotizacion();
 	               r.setIdPlan(rs.getInt("id_plan"));
 	               r.setNombrePlan(rs.getString("nombre_plan"));
-	               r.setValor(rs.getBigDecimal("valorFinal"));
+	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	               r.setValorHijo(rs.getBigDecimal("valorHijo"));
+	               r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	               r.setAfiliacion(rs.getInt("afiliacion"));
+	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
 	               resultados.add(r);
 	            }
 	            
@@ -121,19 +135,19 @@ public class PrecioPlanDAO {
 
 	        try (Connection conn = dataSource.getConnection()) {
 	        	
-	            String sql = "{CALL sp_cotizadorJerarquicos(?, ?, ?, ?, ?, ?, ?, ?)}";
+	            String sql = "{CALL sp_cotizadorJerarquicos( ?, ?, ?, ?, ?, ?, ?)}";
 	            
 	            CallableStatement stmt = conn.prepareCall(sql);
 	            
 	            
-	            stmt.setInt(1, cliente.getCantidad());
-	            stmt.setInt(2, cliente.getEdadTitular());
-	            stmt.setString(3, cliente.getGeneroTitular());
-	            stmt.setBoolean(4, cliente.isTienePareja());
-	            stmt.setInt(5, cliente.getEdadPareja());
-	            stmt.setString(6, cliente.getGeneroPareja());
-	            stmt.setInt(7, cliente.getIdAfiliacion());
-	            stmt.setDouble(8,cliente.getSueldoBruto());
+	         
+	            stmt.setInt(1, cliente.getEdadTitular());
+	            stmt.setString(2, cliente.getGeneroTitular());
+	            stmt.setBoolean(3, cliente.isTienePareja());
+	            stmt.setInt(4, cliente.getEdadPareja());
+	            stmt.setString(5, cliente.getGeneroPareja());
+	            stmt.setInt(6, cliente.getIdAfiliacion());
+	            stmt.setDouble(7,cliente.getSueldoBruto());
 	            
 
 	            ResultSet rs = stmt.executeQuery(); 
@@ -142,8 +156,16 @@ public class PrecioPlanDAO {
 	               ResultadoCotizacion r = new ResultadoCotizacion();
 	               r.setIdPlan(rs.getInt("id_plan"));
 	               r.setNombrePlan(rs.getString("nombre_plan"));
-	               r.setValor(rs.getBigDecimal("valor"));
+	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	               r.setValorHijo(rs.getBigDecimal("valorHijo"));
+	               r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	               r.setAfiliacion(rs.getInt("afiliacion"));
+	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
 	               resultados.add(r);
+	               
 	            }
 	            
 
@@ -182,7 +204,11 @@ public class PrecioPlanDAO {
 		               ResultadoCotizacion r = new ResultadoCotizacion();
 		               r.setIdPlan(rs.getInt("id_plan"));
 		               r.setNombrePlan(rs.getString("nombre_plan"));
-		               r.setValor(rs.getBigDecimal("valor"));
+		               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+		               r.setAfiliacion(rs.getInt("afiliacion"));
+		               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+		               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+		               r.setValorFinal(rs.getBigDecimal("valorFinal"));
 		               resultados.add(r);
 		            }
 		            

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.cotizador.cotizadorSeguros.dto.request.ConsultaRequestDTO;
 import com.cotizador.cotizadorSeguros.dto.response.PlanDTO;
+import com.cotizador.cotizadorSeguros.dto.response.PlanDetalleDTO;
 import com.cotizador.cotizadorSeguros.model.ClienteConsulta;
 import com.cotizador.cotizadorSeguros.model.ResultadoCotizacion;
 import com.cotizador.cotizadorSeguros.repository.PrecioPlanDAO;
@@ -33,7 +34,7 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 	private void agregarPlanes(String proveedor, List<ResultadoCotizacion> lista, List<PlanDTO> planes) {
 	    	
 	        for (ResultadoCotizacion r : lista) {
-	            planes.add(new PlanDTO(proveedor,r.getIdPlan(), r.getNombrePlan(), r.getValor()));
+	            planes.add(new PlanDTO(proveedor,r.getIdPlan(), r.getNombrePlan(), r.getValorFinal()));
 	        }
 	 }
 	
@@ -97,7 +98,7 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 	        case 1 -> {
 	        	
 	        	agregarPlanes("Jerarquicos", precioPlanDAO.cotizadorJerarquicos(cliente), planes);
-	        	agregarPlanes("DoctoRed", precioPlanDAO.cotizadorDoctoRed(cliente), planes);
+
 
 	        }
 
@@ -109,6 +110,8 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 
 	        
 	        case 3 -> {
+	        	
+	        	agregarPlanes("DoctoRed", precioPlanDAO.cotizadorDoctoRed(cliente), planes);
 	        	agregarPlanes("Jerarquicos", precioPlanDAO.cotizadorJerarquicosPM(cliente), planes);
 	            
 	        }
@@ -119,6 +122,47 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 	    
 	    return planes;
 	 
+	}
+	
+	
+	@Override
+	public PlanDetalleDTO DetallePlanById(ClienteConsulta cliente, int id)
+	{
+		List<ResultadoCotizacion> resultados = new ArrayList<>();
+		
+		   switch (cliente.getIdAfiliacion()) {
+	        case 1 -> {
+	        	resultados.addAll(precioPlanDAO.cotizadorJerarquicos(cliente));
+	        }
+	        case 2 -> {
+	            resultados.addAll(precioPlanDAO.cotizadorJerarquicosPM(cliente));
+	            resultados.addAll(precioPlanDAO.cotizadorDoctoRed(cliente));
+	        }
+	        case 3 -> {
+	            resultados.addAll(precioPlanDAO.cotizadorJerarquicosPM(cliente));
+	            resultados.addAll(precioPlanDAO.cotizadorDoctoRed(cliente));
+	        }
+	    }
+		
+		for (ResultadoCotizacion r : resultados) {
+	        if (r.getIdPlan() == id) {
+	        	
+	            PlanDetalleDTO dto = new PlanDetalleDTO();
+	            
+	            dto.setIdPlan(r.getIdPlan());
+	            dto.setValorPlan(r.getValorPlan());
+	            dto.setValorHijo(r.getValorHijo());
+	            dto.setValorHijoAdicional(r.getValorHijoAdicional());
+	            dto.setAfiliacion(r.getAfiliacion());
+	            dto.setCantidadPersona(r.getCantidadPersona());
+	            dto.setSueldoBruto(r.getSueldoBruto());
+	            dto.setAporteObraSocial(r.getAporteObraSocial());
+	            dto.setValorFinal(r.getValorFinal());
+	            return dto;
+	        }
+	    }
+
+	    return null;
 	}
 	
 	
