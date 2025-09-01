@@ -17,7 +17,7 @@ public interface IPrecioPlanService {
 	
 	List<PlanDTO> cotizarPlanes(ClienteConsulta cliente);
 	PlanDTO cotizarPlanId(String proveedor,ClienteConsulta cliente, int idPlan);
-	PlanDetalleDTO DetallePlanById(ClienteConsulta cliente, int idPlan);
+	PlanDetalleDTO DetallePlanById(ClienteConsulta cliente, int idPlan, String proveedor);
 	
   
 

@@ -29,7 +29,7 @@ public class PrecioPlanDAO {
 	        this.dataSource = dataSource;
 	    }
 
-	    
+	  //Obtiene todos los planes cotizador de cada proveedor
 	    
  	    public List<ResultadoCotizacion> cotizadorSwissMedical(ClienteConsulta consulta) {
 	    	
@@ -157,8 +157,12 @@ public class PrecioPlanDAO {
 	               r.setIdPlan(rs.getInt("id_plan"));
 	               r.setNombrePlan(rs.getString("nombre_plan"));
 	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
-	               r.setValorHijo(rs.getBigDecimal("valorHijo"));
-	               r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	               r.setRecargoEdadTitular(rs.getBigDecimal("recargoEdadTitular"));
+	               r.setRecargoEdadPareja(rs.getBigDecimal("recargoEdadPareja"));
+	               r.setServicioMutual(rs.getBigDecimal("servicioMutual"));
+	               
+	               
+	               r.setBonificacion(rs.getBigDecimal("Bonificacion"));
 	               r.setAfiliacion(rs.getInt("afiliacion"));
 	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
 	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
@@ -224,5 +228,198 @@ public class PrecioPlanDAO {
 		    	
 		    }
 	    
+	    
 
+		 //Obtiene el plan por id cotizado
+	    
+	    //Obtiene el plan por id,
+	    
+	    public ResultadoCotizacion detallePlanSwiss(ClienteConsulta cliente, int idPlan) {
+	    		
+	    	try (Connection conn = dataSource.getConnection()) {
+	        	
+	            String sql = "{CALL sp_cotizadorSwissMedical(?, ?, ?, ?, ?, ?, ?)}";
+	            
+	            CallableStatement stmt = conn.prepareCall(sql);
+
+	            
+	            stmt.setInt(1, cliente.getEdadTitular());
+	            stmt.setBoolean(2, cliente.isTienePareja());
+	            stmt.setInt(3, cliente.getEdadPareja());
+	            stmt.setBoolean(4, cliente.isTieneHijos());
+	            stmt.setInt(5, cliente.getCantidadHijos());
+	            stmt.setInt(6, cliente.getIdAfiliacion());
+	            stmt.setDouble(7, cliente.getSueldoBruto());
+	            
+	            ResultSet rs = stmt.executeQuery(); 
+        		
+	            while (rs.next()) {
+	            	if (idPlan == rs.getInt("id_plan")) {
+	            		
+	            	ResultadoCotizacion r = new ResultadoCotizacion();
+	  	               r.setIdPlan(rs.getInt("id_plan"));
+	  	               r.setNombrePlan(rs.getString("nombre_plan"));
+	  	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	  	               r.setValorHijo(rs.getBigDecimal("valorHijo"));
+	  	               r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	  	               r.setAfiliacion(rs.getInt("afiliacion"));
+	  	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	  	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	  	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	  	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
+	  	               return r;
+	            	}
+	              
+	            }
+	            
+	            System.out.println("Plan con ID " + idPlan + " no encontrado en el SP.");
+
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return null;
+	    	
+	    }
+	    
+	    public ResultadoCotizacion detallePlanDoctoRed(ClienteConsulta cliente,int idPlan) {
+	        
+
+	    	   try (Connection conn = dataSource.getConnection()) {
+
+	    	        String sql = "{CALL sp_cotizadorDoctoRed(?, ?, ?, ?, ?)}";
+	    	        CallableStatement stmt = conn.prepareCall(sql);
+
+	    	        stmt.setInt(1, cliente.getEdadTitular());
+	    	        stmt.setBoolean(2, cliente.isTienePareja());
+	    	        stmt.setBoolean(3, cliente.isTieneHijos());
+	    	        stmt.setInt(4, cliente.getCantidadHijos());
+	    	        stmt.setInt(5, cliente.getIdAfiliacion());
+
+	    	        ResultSet rs = stmt.executeQuery();
+
+	    	        while (rs.next()) {
+	    	            if (idPlan == rs.getInt("id_plan")) {
+	    	                ResultadoCotizacion r = new ResultadoCotizacion();
+	    	                r.setIdPlan(rs.getInt("id_plan"));
+	    	                r.setNombrePlan(rs.getString("nombre_plan"));
+	    	                r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	    	                r.setValorHijo(rs.getBigDecimal("valorHijo"));
+	    	                r.setValorHijoAdicional(rs.getBigDecimal("valorHijoAdicional"));
+	    	                r.setAfiliacion(rs.getInt("afiliacion"));
+	    	                r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	    	                r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	    	                r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	    	                r.setValorFinal(rs.getBigDecimal("valorFinal"));
+	    	                return r;
+	    	            }
+	    	        }
+
+	    	        System.out.println("Plan con ID " + idPlan + " no encontrado en el SP.");
+	    	    } catch (Exception e) {
+	    	        e.printStackTrace();
+	    	    }
+	    	    return null;
+	    }
+	    
+	    public ResultadoCotizacion detallePlanJerarquicos(ClienteConsulta cliente,int idPlan) {
+	    	
+	    	try (Connection conn = dataSource.getConnection()) {
+	        	
+	            String sql = "{CALL sp_cotizadorJerarquicos( ?, ?, ?, ?, ?, ?, ?)}";
+	            
+	            CallableStatement stmt = conn.prepareCall(sql);
+	            
+	            
+	         
+	            stmt.setInt(1, cliente.getEdadTitular());
+	            stmt.setString(2, cliente.getGeneroTitular());
+	            stmt.setBoolean(3, cliente.isTienePareja());
+	            stmt.setInt(4, cliente.getEdadPareja());
+	            stmt.setString(5, cliente.getGeneroPareja());
+	            stmt.setInt(6, cliente.getIdAfiliacion());
+	            stmt.setDouble(7,cliente.getSueldoBruto());
+	            
+
+	            ResultSet rs = stmt.executeQuery(); 
+	            		
+	            while (rs.next()) {
+	            	
+	            	if (idPlan == rs.getInt("id_plan")) {
+	            		
+	            	ResultadoCotizacion r = new ResultadoCotizacion();
+	  	               r.setIdPlan(rs.getInt("id_plan"));
+	  	               r.setNombrePlan(rs.getString("nombre_plan"));
+	  	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	  	               r.setRecargoEdadTitular(rs.getBigDecimal("recargoEdadTitular"));
+	  	               r.setRecargoEdadPareja(rs.getBigDecimal("recargoEdadPareja"));
+	  	               r.setServicioMutual(rs.getBigDecimal("servicioMutual"));
+	  	               r.setBonificacion(rs.getBigDecimal("Bonificacion"));
+	  	               r.setAfiliacion(rs.getInt("afiliacion"));
+	  	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	  	               r.setSueldoBruto(rs.getBigDecimal("sueldoBruto"));
+	  	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	  	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
+	  	               return r;
+	            	}
+	              
+	               
+	            }
+	            
+
+	            System.out.println("Plan con ID " + idPlan + " no encontrado en el SP.");
+	           
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return null;
+	    	
+	    }
+	    
+	    
+	    public ResultadoCotizacion detallePlanJerarquicosPM(ClienteConsulta cliente,int idPlan) {
+	    	
+	    	try (Connection conn = dataSource.getConnection()) {
+	        	
+	            String sql = "{CALL sp_cotizadorJerarquicosPM(?, ?, ?)}";
+	            
+	            CallableStatement stmt = conn.prepareCall(sql);
+	            
+	            
+	            stmt.setInt(1, cliente.getCantidad());
+	            stmt.setInt(2, cliente.getEdadTitular());
+	            stmt.setInt(3, cliente.getIdAfiliacion());
+	            
+	            
+	           
+
+	            ResultSet rs = stmt.executeQuery(); 
+        		
+	            while (rs.next()) {
+	            	if (idPlan == rs.getInt("id_plan")) {
+	            		ResultadoCotizacion r = new ResultadoCotizacion();
+	  	               r.setIdPlan(rs.getInt("id_plan"));
+	  	               r.setNombrePlan(rs.getString("nombre_plan"));
+	  	               r.setValorPlan(rs.getBigDecimal("valorPlan"));
+	  	               r.setAfiliacion(rs.getInt("afiliacion"));
+	  	               r.setCantidadPersona(rs.getInt("cantidadPersona"));
+	  	               r.setAporteObraSocial(rs.getBigDecimal("aporteObraSocial"));
+	  	               r.setValorFinal(rs.getBigDecimal("valorFinal"));
+	  	               return r;
+	            	}
+	              
+	            }
+	            
+	            
+	            
+	            
+	           System.out.println("Plan con ID " + idPlan + " no encontrado en el SP.");  
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+
+	        return null;
+	
+	    }
 }

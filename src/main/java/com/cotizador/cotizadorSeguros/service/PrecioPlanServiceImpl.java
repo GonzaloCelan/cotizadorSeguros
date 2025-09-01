@@ -9,6 +9,9 @@ import java.util.function.BiConsumer;
 import org.springframework.stereotype.Service;
 
 import com.cotizador.cotizadorSeguros.dto.request.ConsultaRequestDTO;
+import com.cotizador.cotizadorSeguros.dto.response.DetalleDoctoRedDTO;
+import com.cotizador.cotizadorSeguros.dto.response.DetalleJerarquicosDTO;
+import com.cotizador.cotizadorSeguros.dto.response.DetalleSwissDTO;
 import com.cotizador.cotizadorSeguros.dto.response.PlanDTO;
 import com.cotizador.cotizadorSeguros.dto.response.PlanDetalleDTO;
 import com.cotizador.cotizadorSeguros.model.ClienteConsulta;
@@ -97,7 +100,8 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 
 	        case 1 -> {
 	        	
-	        	agregarPlanes("Jerarquicos", precioPlanDAO.cotizadorJerarquicos(cliente), planes);
+	        	agregarPlanes("SwissMedical", precioPlanDAO.cotizadorSwissMedical(cliente), planes);
+	        	agregarPlanes("Jerarquicos", precioPlanDAO.cotizadorJerarquicos(cliente), planes);//
 
 
 	        }
@@ -126,45 +130,74 @@ public class PrecioPlanServiceImpl implements IPrecioPlanService{
 	
 	
 	@Override
-	public PlanDetalleDTO DetallePlanById(ClienteConsulta cliente, int id)
+	public PlanDetalleDTO DetallePlanById(ClienteConsulta cliente, int id, String proveedor)
 	{
-		List<ResultadoCotizacion> resultados = new ArrayList<>();
-		
-		   switch (cliente.getIdAfiliacion()) {
-	        case 1 -> {
-	        	resultados.addAll(precioPlanDAO.cotizadorJerarquicos(cliente));
-	        }
-	        case 2 -> {
-	            resultados.addAll(precioPlanDAO.cotizadorJerarquicosPM(cliente));
-	            resultados.addAll(precioPlanDAO.cotizadorDoctoRed(cliente));
-	        }
-	        case 3 -> {
-	            resultados.addAll(precioPlanDAO.cotizadorJerarquicosPM(cliente));
-	            resultados.addAll(precioPlanDAO.cotizadorDoctoRed(cliente));
-	        }
-	    }
-		
-		for (ResultadoCotizacion r : resultados) {
-	        if (r.getIdPlan() == id) {
-	        	
-	            PlanDetalleDTO dto = new PlanDetalleDTO();
-	            
-	            dto.setIdPlan(r.getIdPlan());
-	            dto.setValorPlan(r.getValorPlan());
-	            dto.setValorHijo(r.getValorHijo());
-	            dto.setValorHijoAdicional(r.getValorHijoAdicional());
-	            dto.setAfiliacion(r.getAfiliacion());
-	            dto.setCantidadPersona(r.getCantidadPersona());
-	            dto.setSueldoBruto(r.getSueldoBruto());
-	            dto.setAporteObraSocial(r.getAporteObraSocial());
-	            dto.setValorFinal(r.getValorFinal());
-	            return dto;
-	        }
-	    }
+		 switch (proveedor) {
 
-	    return null;
-	}
+	        case "Jerarquicos" : {
+	        	
+	        	ResultadoCotizacion r = precioPlanDAO.detallePlanJerarquicos(cliente, id);
+	        	DetalleJerarquicosDTO plan = new DetalleJerarquicosDTO();
+	        	plan.setIdPlan(r.getIdPlan());
+	        	plan.setNombrePlan(r.getNombrePlan());
+	        	plan.setValorPlan(r.getValorPlan());
+	        	plan.setRecargoEdadTitular(r.getRecargoEdadTitular());
+	        	plan.setRecargoEdadPareja(r.getRecargoEdadPareja());
+	        	plan.setServicioMutual(r.getServicioMutual());
+	        	plan.setBonificacion(r.getBonificacion());
+	        	plan.setAfiliacion(r.getAfiliacion());
+	        	plan.setCantidadPersona(r.getCantidadPersona());
+	        	plan.setSueldoBruto(r.getSueldoBruto());
+	        	plan.setAporteObraSocial(r.getAporteObraSocial());
+	        	plan.setValorFinal(r.getValorFinal());	
+	        	
+	        	return plan;
+	        	
+
+	        }
+
+	        case "SwissMedical" : {
+	        	ResultadoCotizacion r = precioPlanDAO.detallePlanSwiss(cliente, id);
+	        	DetalleSwissDTO plan = new DetalleSwissDTO();
+	        	plan.setIdPlan(r.getIdPlan());
+	        	plan.setNombrePlan(r.getNombrePlan());
+	        	plan.setValorPlan(r.getValorPlan());
+	        	plan.setValorHijo(r.getValorHijo());
+	        	plan.setValorHijoAdicional(r.getValorHijoAdicional());
+	        	plan.setAfiliacion(r.getAfiliacion());
+	        	plan.setCantidadPersona(r.getCantidadPersona());
+	        	plan.setSueldoBruto(r.getSueldoBruto());
+	        	plan.setAporteObraSocial(r.getAporteObraSocial());
+	        	plan.setValorFinal(r.getValorFinal());	
+	        	
+	        	return plan;
+	        	
+	        }
+
+	        
+	        case "DoctoRed" : {
+	        	
+	        	ResultadoCotizacion r = precioPlanDAO.detallePlanDoctoRed(cliente, id);
+	        	DetalleDoctoRedDTO plan = new DetalleDoctoRedDTO();
+	        	plan.setIdPlan(r.getIdPlan());
+	        	plan.setNombrePlan(r.getNombrePlan());
+	        	plan.setValorPlan(r.getValorPlan());
+	        	plan.setValorHijo(r.getValorHijo());
+	        	plan.setValorHijoAdicional(r.getValorHijoAdicional());
+	        	plan.setAfiliacion(r.getAfiliacion());
+	        	plan.setCantidadPersona(r.getCantidadPersona());
+	        	plan.setSueldoBruto(r.getSueldoBruto());
+	        	plan.setAporteObraSocial(r.getAporteObraSocial());
+	        	plan.setValorFinal(r.getValorFinal());	
+	        	
+	        	return plan;
+	        }
+
+	        default : { throw new IllegalArgumentException("Proveedor no reconocido: " + proveedor);}
+	        
+	    }
 	
+	}
 	
 }
 	

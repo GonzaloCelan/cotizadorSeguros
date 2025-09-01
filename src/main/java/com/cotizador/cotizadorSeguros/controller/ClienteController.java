@@ -38,43 +38,31 @@ public class ClienteController {
 	    public ResponseEntity<List<PlanDTO>> consultarPlan(@RequestBody @Valid ConsultaRequestDTO request) {
 			
 			 // Mapeo del DTO a la entidad ClienteConsulta
-			
+			System.out.println("Body recibido: " + request); // usa toString()
 			ClienteConsulta cliente = mapToClienteConsulta(request);
 		    // recibo una list de planes, desde la capa service 
 		    
 			List<PlanDTO> resultado = service.cotizarPlanes(cliente);
 			return ResponseEntity.ok(resultado);
+			
 
 	    }
 		
 		//endpoint para traer un plan cotizado en especifico
 		
-		@PostMapping
-		("/consultar/{proveedor}/{id}")
-		  
-	    public ResponseEntity<PlanDTO> consultarPlanById(
-	    		@PathVariable String proveedor,
-	    		@PathVariable int id, 
-	    		@RequestBody @Valid ConsultaRequestDTO request) {
-			
-			ClienteConsulta cliente = mapToClienteConsulta(request);
-			    
-			PlanDTO resultado = service.cotizarPlanId(proveedor, cliente, id);
-			
-			return ResponseEntity.ok(resultado);
-
-	    }
+		
 		
 		@PostMapping
-		("/detalle/{id}")
+		("/detalle/{proveedor}/{id}")
 		  
 	    public ResponseEntity<PlanDetalleDTO> consultarPlanDetalleById(
+	    		@PathVariable String proveedor,
 	    		@PathVariable int id,
 	    		@RequestBody @Valid ConsultaRequestDTO request) {
 			    
 			ClienteConsulta cliente = mapToClienteConsulta(request);
 			
-			PlanDetalleDTO resultado = service.DetallePlanById(cliente, id);
+			PlanDetalleDTO resultado = service.DetallePlanById(cliente, id,proveedor);
 			
 			return ResponseEntity.ok(resultado);
 

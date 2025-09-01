@@ -9,6 +9,10 @@ public class ResultadoCotizacion {
 	private BigDecimal valorPlan;
 	private BigDecimal valorHijo;
 	private BigDecimal valorHijoAdicional;
+	private BigDecimal recargoEdadTitular;
+	private BigDecimal recargoEdadPareja;
+	private BigDecimal servicioMutual;
+	private BigDecimal bonificacion;
 	private int afiliacion;
 	private int cantidadPersona;
 	private BigDecimal sueldoBruto;
@@ -38,6 +42,52 @@ public class ResultadoCotizacion {
       
         
     }
+	
+	public BigDecimal getRecargoEdadTitular() {
+		return recargoEdadTitular;
+	}
+
+
+
+	public void setRecargoEdadTitular(BigDecimal recargoEdadTitular) {
+		this.recargoEdadTitular = recargoEdadTitular;
+	}
+
+
+
+	public BigDecimal getRecargoEdadPareja() {
+		return recargoEdadPareja;
+	}
+
+
+
+	public void setRecargoEdadPareja(BigDecimal recargoEdadPareja) {
+		this.recargoEdadPareja = recargoEdadPareja;
+	}
+
+
+
+	public BigDecimal getServicioMutual() {
+		return servicioMutual;
+	}
+
+
+
+	public void setServicioMutual(BigDecimal servicioMutual) {
+		this.servicioMutual = servicioMutual;
+	}
+
+
+
+	public BigDecimal getBonificacion() {
+		return bonificacion;
+	}
+
+
+
+	public void setBonificacion(BigDecimal bonificacion) {
+		this.bonificacion = bonificacion;
+	}
 
 	public int getIdPlan() {
 		return idPlan;

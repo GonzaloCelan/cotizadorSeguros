@@ -23,12 +23,52 @@
     html, body { height: 100%; }
     body {
       font-family: 'Inter', sans-serif;
-      background: #fff;
       color: var(--ink);
       margin: 0;
-      padding: 2rem 1rem;
+      padding: 2rem 1rem 0; /* sin padding inferior */
+      position: relative;
+      /* Fondo combinado: degradé ambiental + focos suaves */
+      background:
+        radial-gradient(900px 500px at -10% -10%, rgba(18,198,201,.12) 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 110%, rgba(30,58,138,.12) 0%, transparent 60%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     }
-    .form-wrapper { max-width: 960px; margin: auto; }
+    /* Textura de micro-puntos sutil */
+    body::before{
+      content:""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(rgba(14,165,168,0.06) 1px, transparent 1.4px);
+      background-size: 22px 22px; opacity:.9;
+    }
+    /* Capa de “granito” hiper sutil */
+    body::after{
+      content:""; position: fixed; inset:0; pointer-events:none; z-index:0;
+      background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter>\
+<rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/>\
+</svg>");
+      background-size: 200px 200px; mix-blend-mode: multiply;
+    }
+
+    .form-wrapper { max-width: 960px; margin: auto; position:relative; z-index:1; }
+    /* Evitar bloque blanco al final */
+    .form-wrapper > *:last-child{ margin-bottom: 0; }
+
+    /* Blobs difuminados detrás del contenido */
+    .form-wrapper::before,
+    .form-wrapper::after{
+      content:""; position:absolute; filter: blur(48px); opacity: .25; z-index:-1;
+      width: 380px; height: 380px; border-radius: 50%;
+    }
+    .form-wrapper::before{
+      left:-120px; top:-80px;
+      background: radial-gradient(circle at 30% 30%, var(--brand-teal) 0%, transparent 60%);
+    }
+    .form-wrapper::after{
+      right:-140px; bottom:-100px;
+      background: radial-gradient(circle at 70% 70%, var(--brand-blue) 0%, transparent 60%);
+    }
+
     h1 { text-align: center; color: var(--brand-blue); margin-bottom: 2rem; }
 
     /* ===== Selector de grupo familiar ===== */
@@ -99,7 +139,6 @@
     .opcion-familiar { display: inline-flex; align-items: center; gap: .6rem; }
     .fam-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; line-height: 0; }
     .opcion-familiar svg { width: 100%; height: 100%; }
-    @media (max-width: 560px){ .opcion-familiar { flex-direction: column; gap: .35rem; } .fam-icon { width: 32px; height: 32px; } }
 
     /* Tabla/Grilla */
     .table-card { margin-top: 1.75rem; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); padding:16px; }
@@ -115,13 +154,7 @@
     col.col-plan      { width: 28%; }
     col.col-num       { width: 18%; }
     col.col-estado    { width: 16%; }
-    col.col-detalle   { width: 8%;  }
-
-    col.col-proveedor { width: 12%; }
-    col.col-plan      { width: 12%; }
-    col.col-num       { width: 12%; }
-    col.col-estado    { width: 12%; }
-    col.col-detalle   { width: 12%;  }
+    col.col-detalle   { width: 8%; }
 
     /* números tabulares */
     th.num, td.num { text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
@@ -164,13 +197,6 @@
     @keyframes ripple { to { transform: translate(-50%, -50%) scale(24); opacity:0; } }
     @keyframes modalIn { to { opacity:1; transform: none; } }
 
-    /* Ajustes finos de grilla */
-    col.col-proveedor { width: 30%; }
-    col.col-plan      { width: 28%; }
-    col.col-num       { width: 18%; }
-    col.col-estado    { width: 16%; }
-    col.col-detalle   { width: 8%; }
-
     /* Separador sutil entre filas */
     tbody tr + tr td { border-top: 1px solid #e5e7eb; }
 
@@ -185,13 +211,14 @@
       text-overflow: ellipsis;
     }
 
-    .link-detalle{ color: var(--brand-blue); font-weight: 700; text-decoration: none; cursor: pointer; }
-    .link-detalle:hover { text-decoration: underline; }
-
     col.col-detalle { width: 120px; }
     td:nth-child(5) { text-align: right; white-space: nowrap; overflow: visible; }
 
     @media (max-width: 640px){
+      body::before{ background-size:18px 18px; opacity:.7; }
+      .form-wrapper::before, .form-wrapper::after{ width:300px; height:300px; filter:blur(36px); opacity:.22; }
+      .form-wrapper::before{ left:-100px; top:-70px; }
+      .form-wrapper::after{ right:-110px; bottom:-90px; }
       table { table-layout: auto; }
       col.col-detalle { width: auto; }
       th, td { padding: 8px 10px; }
@@ -216,52 +243,45 @@
     <div class="grupo-familiar-selector">
       <button type="button" class="opcion-familiar seleccionada" data-tipo="solo" aria-pressed="true">
         <span class="fam-icon" aria-hidden="true">
-          <!-- Solo -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="7" r="3"></circle>
-            <path d="M5 21c0-3.3 3.6-6 7-6s7 2.7 7 6"></path>
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="7" r="3"></circle>
+              <path d="M5 21c0-3.3 3.6-6 7-6s7 2.7 7 6"></path>
+            </svg>
         </span>
         <span>Para mí</span>
       </button>
-      
       <button type="button" class="opcion-familiar" data-tipo="pareja" aria-pressed="false">
         <span class="fam-icon" aria-hidden="true">
-          <!-- Pareja -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="8" cy="7" r="3"></circle>
-            <circle cx="16" cy="7" r="3"></circle>
-            <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
-            <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="8" cy="7" r="3"></circle>
+              <circle cx="16" cy="7" r="3"></circle>
+              <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
+              <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
+            </svg>
         </span>
         <span>Para mí y mi pareja</span>
       </button>
-
       <button type="button" class="opcion-familiar" data-tipo="hijos" aria-pressed="false">
         <span class="fam-icon" aria-hidden="true">
-          <!-- Adulto + hijo -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="6.5" r="3"></circle>
-            <path d="M3 21c0-3.5 3-6 6-6s6 2.5 6 6"></path>
-            <circle cx="18" cy="10.5" r="2"></circle>
-            <path d="M16 21c0-2.2 1.8-4 4-4"></path>
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="9" cy="6.5" r="3"></circle>
+              <path d="M3 21c0-3.5 3-6 6-6s6 2.5 6 6"></path>
+              <circle cx="18" cy="10.5" r="2"></circle>
+              <path d="M16 21c0-2.2 1.8-4 4-4"></path>
+            </svg>
         </span>
         <span>Para mí y mis hijos</span>
       </button>
-
       <button type="button" class="opcion-familiar" data-tipo="familia" aria-pressed="false">
         <span class="fam-icon" aria-hidden="true">
-          <!-- Familia -->
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="7" cy="6.5" r="3"></circle>
-            <circle cx="17" cy="6.5" r="3"></circle>
-            <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
-            <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
-            <circle cx="12" cy="11.5" r="2"></circle>
-            <path d="M9.5 21c0-2.2 2.1-4 4.5-4"></path>
-          </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="7" cy="6.5" r="3"></circle>
+              <circle cx="17" cy="6.5" r="3"></circle>
+              <path d="M2.5 21c0-3 2.8-5.5 5.5-5.5"></path>
+              <path d="M21.5 21c0-3-2.8-5.5-5.5-5.5"></path>
+              <circle cx="12" cy="11.5" r="2"></circle>
+              <path d="M9.5 21c0-2.2 2.1-4 4.5-4"></path>
+            </svg>
         </span>
         <span>Para mí y mi familia</span>
       </button>
@@ -328,7 +348,6 @@
 
     <!-- Grilla de resultados -->
     <div class="table-card">
-      <!-- Empty state visible al inicio -->
       <div id="emptyState" class="empty-state">
         <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 14a1 1 0 1 1-1 1 1 1 0 0 1 1-1Zm1-3h-2a1 1 0 0 1-1-1V7a1 1 0 0 1 2 0v4h1a1 1 0 0 1 0 2Z"/></svg>
         <p class="empty-title">Todavía no se realizaron cotizaciones</p>
@@ -364,14 +383,11 @@
         <h3 id="detalleTitulo" style="margin:0;font-size:1.05rem;">Detalle del plan</h3>
         <button class="close-btn" type="button" id="cerrarDetalle">&times;</button>
       </header>
-      <div class="content" id="detalleContenido">
-        <!-- Se completa vía JS -->
-      </div>
+      <div class="content" id="detalleContenido"></div>
     </div>
   </div>
 
   <script>
-    // Ripple en botones principales
     function attachRipple(btn){
       btn.addEventListener('click', (e)=>{
         const r = document.createElement('span');
@@ -385,7 +401,6 @@
     }
     document.querySelectorAll('.btn, .opcion-familiar').forEach(attachRipple);
 
-    // Helpers
     function setVisible(groupId, show){
       const el = document.getElementById(groupId);
       if(!el) return;
@@ -400,7 +415,6 @@
       return 1;
     }
 
-    // Manejo de selección familiar
     function aplicarTipo(tipo){
       setVisible('grpEdadTitular', true);
       setVisible('grpGeneroTitular', true);
@@ -428,7 +442,6 @@
       });
     });
 
-    // Afiliación: habilitar sueldo solo para relación de dependencia
     const afiliacion = document.getElementById('afiliacion');
     const sueldo = document.getElementById('sueldo');
     function syncSueldoEstado(){
@@ -437,21 +450,13 @@
     }
     afiliacion.addEventListener('change', syncSueldoEstado);
 
-    // Mapeo Proveedor -> ID (ajustar a tu DB si difiere)
-    const PROVEEDOR_ID = {
-      "Jerárquicos": 1,
-      "DoctoRed": 2,
-      "Swiss Medical": 3
-    };
+    const PROVEEDOR_ID = { "Jerárquicos": 1, "DoctoRed": 2, "Swiss Medical": 3 };
 
-    // ----- Lógica principal -----
     const form  = document.getElementById('formCotizador');
     const tbody = document.getElementById('tbodyResultados');
     const btn   = document.getElementById('btnCotizar');
     const btnL  = document.getElementById('btnLimpiar');
     const fmtAR = new Intl.NumberFormat('es-AR', {style:'currency', currency:'ARS'});
-
-    // Nuevo: refs para empty state y tabla
     const empty = document.getElementById('emptyState');
     const table = document.getElementById('tablaResultados');
 
@@ -567,7 +572,7 @@
         renderRows(data);
       } catch (err) {
         console.error(err);
-        table.hidden = false; // mostrar tabla para ver el mensaje
+        table.hidden = false;
         tbody.innerHTML = `<tr><td colspan="5" style="color:#b91c1c;padding:1rem">No pudimos cotizar: ${String(err.message).slice(0,300)}</td></tr>`;
       } finally {
         btn.classList.remove('loading');
@@ -584,13 +589,13 @@
       tbody.innerHTML = '';
     });
 
-    // ----- Modal -----
     const backdrop = document.getElementById('detalleBackdrop');
     const cerrarDetalleBtn = document.getElementById('cerrarDetalle');
     const detalleContenido = document.getElementById('detalleContenido');
 
-    async function postDetalle(id, body){
-      const res = await fetch(`/api/cotizador/detalle/${id}`, {
+    async function postDetalle(proveedor, id, body){
+      const provSeg = encodeURIComponent(String(proveedor ?? '').trim());
+      const res = await fetch(`/api/cotizador/detalle/${provSeg}/${id}`, {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify(body)
@@ -605,8 +610,9 @@
     async function abrirDetalle(index){
       const p = __ULTIMOS_RESULTADOS[index] || {};
       const id = Number(p.idPlan ?? p.id ?? 0);
-      if(!id){
-        alert('No encontramos el ID del plan.');
+      const proveedor = (p.proveedor ?? '').trim();
+      if(!id || !proveedor){
+        alert('No encontramos el ID o el proveedor del plan.');
         return;
       }
 
@@ -619,10 +625,7 @@
         `Detalle – ${(p.nombrePlan ?? p.plan ?? '')}${p.proveedor ? ' · '+p.proveedor : ''}`;
       detalleContenido.innerHTML = `
         <div class="grid">
-          <div class="label">Precio base</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
-          <div class="label">Sueldo bruto</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
-          <div class="label">Aporte obra social</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
-          <div class="label">Total a pagar</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
+          <div class="label">Cargando detalle...</div><div class="value"><div class="skeleton" style="height:16px"></div></div>
         </div>
       `;
       backdrop.classList.add('show');
@@ -630,7 +633,7 @@
 
       try {
         const dto = buildRequestDTO();
-        const det = await postDetalle(id, dto);
+        const det = await postDetalle(proveedor, id, dto);
 
         const fila = (label, val, opts={prefijo:''}) =>
           (val !== null && val !== undefined && Number(val) !== 0)
@@ -640,8 +643,12 @@
         detalleContenido.innerHTML = `
           <div class="grid" style="margin-bottom:.25rem">
             <div class="label">Precio base</div><div class="value">${fmt(det.valorPlan)}</div>
-            ${fila('1er hijo', det.valorHijo)}
-            ${fila('Hijo adicional', det.valorHijoAdicional)}
+            ${fila('1er hijo', det.valorHijo, {prefijo:'+'})}
+            ${fila('Hijo adicional', det.valorHijoAdicional, {prefijo:'+'})}
+            ${fila('Recargo edad titular', det.recargoEdadTitular, {prefijo:'+'})}
+            ${fila('Recargo edad pareja', det.recargoEdadPareja, {prefijo:'+'})}
+            ${fila('Recargo por servicio mutual', det.servicioMutual, {prefijo:'+'})}
+            ${fila('Bonificación', det.bonificacion, {prefijo:'-'})}
           </div>
 
           <hr style="border:none;border-top:1px solid #e2e8f0;margin:10px 0 12px">
@@ -674,7 +681,6 @@
     cerrarDetalleBtn.addEventListener('click', cerrarDetalle);
     backdrop.addEventListener('click', (e)=>{ if(e.target === backdrop) cerrarDetalle(); });
 
-    // Estado inicial
     aplicarTipo('solo');
     syncSueldoEstado();
     showEmpty('Todavía no se realizaron cotizaciones');
@@ -689,4 +695,6 @@
   </script>
 </body>
 </html>
+
+
 

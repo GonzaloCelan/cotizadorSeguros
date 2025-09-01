@@ -2,54 +2,34 @@ package com.cotizador.cotizadorSeguros.dto.response;
 
 import java.math.BigDecimal;
 
-public class PlanDetalleDTO {
-	
+public abstract class  PlanDetalleDTO {
+
 	private int idPlan;
+	private String NombrePlan;
 	private BigDecimal valorPlan;
-	private BigDecimal valorHijo;
-	private BigDecimal valorHijoAdicional;
-	private int afiliacion;
-	private int cantidadPersona;
 	private BigDecimal sueldoBruto;
 	private BigDecimal aporteObraSocial;
 	private BigDecimal valorFinal;
 	
 	
-	public int getIdPlan() {
-		return idPlan;
-	}
-	public void setIdPlan(int idPlan) {
-		this.idPlan = idPlan;
-	}
+	
 	public BigDecimal getValorPlan() {
 		return valorPlan;
 	}
 	public void setValorPlan(BigDecimal valorPlan) {
 		this.valorPlan = valorPlan;
 	}
-	public BigDecimal getValorHijo() {
-		return valorHijo;
+	public int getIdPlan() {
+		return idPlan;
 	}
-	public void setValorHijo(BigDecimal valorHijo) {
-		this.valorHijo = valorHijo;
+	public void setIdPlan(int idPlan) {
+		this.idPlan = idPlan;
 	}
-	public BigDecimal getValorHijoAdicional() {
-		return valorHijoAdicional;
+	public String getNombrePlan() {
+		return NombrePlan;
 	}
-	public void setValorHijoAdicional(BigDecimal valorHijoAdicional) {
-		this.valorHijoAdicional = valorHijoAdicional;
-	}
-	public int getAfiliacion() {
-		return afiliacion;
-	}
-	public void setAfiliacion(int afiliacion) {
-		this.afiliacion = afiliacion;
-	}
-	public int getCantidadPersona() {
-		return cantidadPersona;
-	}
-	public void setCantidadPersona(int cantidadPersona) {
-		this.cantidadPersona = cantidadPersona;
+	public void setNombrePlan(String nombrePlan) {
+		NombrePlan = nombrePlan;
 	}
 	public BigDecimal getSueldoBruto() {
 		return sueldoBruto;
@@ -69,7 +49,6 @@ public class PlanDetalleDTO {
 	public void setValorFinal(BigDecimal valorFinal) {
 		this.valorFinal = valorFinal;
 	}
-
 	
 	
 }
