@@ -4,6 +4,7 @@ package com.cotizador.cotizadorSeguros.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,28 +20,42 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 public class SecurityConfig {
 
+	  
 	  @Bean
 	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		  http
-		  .authorizeHttpRequests(a -> a
-				  .requestMatchers(
-					        "/login",                      // tu página de login (Thymeleaf)
-					        "/manifest.webmanifest",
-					        "/sw.js",
-					        "/logo.png",
-					        "/icons/**",
-					        "/css/**",
-					        "/js/**"
-					      ).permitAll()
-		    .anyRequest().authenticated()
-		  )
-		  .formLogin(f -> f
-		    .loginPage("/login")              // -> templates/login.html vía controlador
-		    .loginProcessingUrl("/login")     // POST del form
-		    .defaultSuccessUrl("/index.html", true) // vuelve al cotizador estático
-		    .permitAll()
-		  )
-		  .logout(l -> l.logoutSuccessUrl("/login?logout").permitAll());
+	        http
+	            .authorizeHttpRequests(a -> a
+	                .requestMatchers(
+	                    "/login",
+	                    "/manifest.webmanifest",
+	                    "/sw.js",
+	                    "/logo.png",
+	                    "/icons/**",
+	                    "/css/**",
+	                    "/js/**"
+	                ).permitAll()
+	                .anyRequest().authenticated()
+	            )
+	            .formLogin(f -> f
+	                .loginPage("/login")
+	                .loginProcessingUrl("/login")
+	                .defaultSuccessUrl("/index.html", true)
+	                .permitAll()
+	            )
+	            .logout(l -> l
+	                .logoutSuccessUrl("/login?logout")
+	                .invalidateHttpSession(true)  // invalida sesión
+	                .deleteCookies("JSESSIONID")  // elimina cookie de sesión
+	                .permitAll()
+	            )
+	            .sessionManagement(s -> s
+	                .maximumSessions(1)  // solo una sesión activa por usuario
+	                .maxSessionsPreventsLogin(false)
+	            )
+	            .sessionManagement(s -> s
+	                .sessionFixation().migrateSession() // previene ataques de fijación de sesión
+	                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+	            );
 
 	        return http.build();
 	    }
