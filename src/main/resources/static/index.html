@@ -8,6 +8,8 @@
   <meta name="theme-color" content="#1e3a8a">
   <link rel="apple-touch-icon" href="/icons/icon-192.png">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <!-- (Opcional) Preload del logo -->
+  <link rel="preload" as="image" href="/logo.png">
   <style>
     :root {
       --brand-blue: #1e3a8a;
@@ -69,6 +71,20 @@
       background: radial-gradient(circle at 70% 70%, var(--brand-blue) 0%, transparent 60%);
     }
 
+    /* ---- NUEVO: bloque de marca (logo arriba del título) ---- */
+    .brand {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: .4rem;
+      margin-bottom: .5rem;
+    }
+    .brand img {
+      width: 80px;       /* ajustá el tamaño acá si querés */
+      height: auto;
+      display: block;
+    }
+
     h1 { text-align: center; color: var(--brand-blue); margin-bottom: 2rem; }
 
     /* ===== Selector de grupo familiar ===== */
@@ -116,6 +132,15 @@
       opacity: .6; cursor: not-allowed;
       background-image: none; border-bottom: 2px dashed #e5e7eb;
     }
+
+    /* ==== Estados de error (nuevo) ==== */
+    .input-error { color:#b91c1c; font-size:.85rem; margin-top:.25rem; display:none; }
+    input[aria-invalid="true"], select[aria-invalid="true"]{
+      border-bottom-color:#ef4444 !important;
+      background-image: linear-gradient(90deg,#ef4444,#dc2626) !important;
+    }
+    @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px);} 30%, 50%, 70% { transform: translateX(-4px);} 40%, 60% { transform: translateX(4px);} }
+    .shake { animation: shake .35s; }
 
     .full-width { grid-column: 1 / -1; }
 
@@ -237,6 +262,11 @@
 </head>
 <body>
   <div class="form-wrapper">
+    <!-- NUEVO: Logo arriba del título -->
+    <div class="brand">
+      <img src="/logo.png" alt="Logo Prepagas San Juan">
+    </div>
+
     <h1>Prepagas San Juan – Cotizador</h1>
 
     <!-- Selector de grupo familiar -->
@@ -338,6 +368,7 @@
       <div class="form-group">
         <label for="sueldo">Sueldo Bruto en $</label>
         <input id="sueldo" type="number" step="0.01" placeholder="0.00" disabled title="Disponible solo para relación de dependencia" />
+        <div id="sueldoError" class="input-error">Ingresá tu sueldo bruto para cotizar con Relación de dependencia.</div>
       </div>
 
       <div class="actions">
@@ -444,7 +475,24 @@
 
     const afiliacion = document.getElementById('afiliacion');
     const sueldo = document.getElementById('sueldo');
+    const sueldoError = document.getElementById('sueldoError');
+
+    function clearFieldError(el){
+      el.removeAttribute('aria-invalid');
+      const err = document.getElementById(el.id + 'Error');
+      if(err){ err.style.display = 'none'; err.textContent = ''; }
+    }
+    function setFieldError(el, msg){
+      el.setAttribute('aria-invalid','true');
+      const err = document.getElementById(el.id + 'Error');
+      if(err){ err.textContent = msg; err.style.display = 'block'; }
+      el.classList.add('shake');
+      setTimeout(()=> el.classList.remove('shake'), 400);
+      el.focus();
+    }
+
     function syncSueldoEstado(){
+      clearFieldError(sueldo);
       if(afiliacion.value === '1'){ sueldo.disabled = false; }
       else { sueldo.value = ''; sueldo.disabled = true; }
     }
@@ -562,8 +610,24 @@
       };
     }
 
+    function validarAntesDeCotizar(){
+      // Requerir sueldo si afiliación = 1 (Relación de dependencia)
+      if (afiliacion.value === '1'){
+        const val = parseFloat(sueldo.value);
+        if (isNaN(val) || val <= 0){
+          setFieldError(sueldo, 'Ingresá tu sueldo bruto para cotizar con Relación de dependencia.');
+          return false;
+        }
+      }
+      clearFieldError(sueldo);
+      return true;
+    }
+
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
+      // Validación sincronizada previa
+      if (!validarAntesDeCotizar()) return; // no continúa si falla
+
       btn.classList.add('loading');
       showSkeleton(5);
       try {
@@ -579,14 +643,26 @@
       }
     });
 
+    // Limpiar y resetear errores
     btnL.addEventListener('click', ()=>{
       form.reset();
       document.querySelectorAll('.opcion-familiar').forEach(b => b.classList.remove('seleccionada'));
       document.querySelector('.opcion-familiar[data-tipo="solo"]').classList.add('seleccionada');
       aplicarTipo('solo');
       syncSueldoEstado();
+      clearFieldError(sueldo);
       showEmpty('Todavía no se realizaron cotizaciones');
       tbody.innerHTML = '';
+    });
+
+    // Quitar error al tipear
+    ['input','blur'].forEach(evt => {
+      sueldo.addEventListener(evt, ()=> {
+        if (afiliacion.value === '1'){
+          const v = parseFloat(sueldo.value);
+          if (!isNaN(v) && v > 0) clearFieldError(sueldo);
+        }
+      });
     });
 
     const backdrop = document.getElementById('detalleBackdrop');
@@ -695,6 +771,4 @@
   </script>
 </body>
 </html>
-
-
 

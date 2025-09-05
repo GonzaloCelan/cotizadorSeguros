@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="utf-8" />
+  <title>Ingresar – Prepagas San Juan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="/manifest.webmanifest">
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="/logo.png">
+  <style>
+    :root {
+      --brand-blue: #1e3a8a;
+      --brand-teal: #12c6c9;
+      --brand-mint: #21c78a;
+      --green: var(--brand-teal);
+      --muted: #6b7280;
+      --light-gray: #f1f5f9;
+      --ink: #0f172a;
+      --ease: cubic-bezier(.2,.8,.2,1);
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      margin: 0;
+      padding: 2rem 1rem 0;
+      position: relative;
+      background:
+        radial-gradient(900px 500px at -10% -10%, rgba(18,198,201,.12) 0%, transparent 60%),
+        radial-gradient(900px 500px at 110% 110%, rgba(30,58,138,.12) 0%, transparent 60%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+      display: grid; place-items: center;
+    }
+    /* micropuntos + “granito” como en el cotizador */
+    body::before{
+      content:""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+      background-image: radial-gradient(rgba(14,165,168,0.06) 1px, transparent 1.4px);
+      background-size: 22px 22px; opacity:.9;
+    }
+    body::after{
+      content:""; position: fixed; inset:0; pointer-events:none; z-index:0;
+      background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'>\
+<filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter>\
+<rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/></svg>");
+      background-size: 200px 200px; mix-blend-mode: multiply;
+    }
+
+    .auth-wrapper { width: 100%; max-width: 420px; position:relative; z-index:1; }
+    .card {
+      background:#fff; border:1px solid #e2e8f0; border-radius:16px; padding:22px 20px;
+      box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18);
+    }
+
+    .brand { display:flex; flex-direction:column; align-items:center; gap:.45rem; margin-bottom: .75rem; }
+    .brand img { width:72px; height:auto; display:block; }
+    .brand h1 { color: var(--brand-blue); font-size: 1.15rem; margin: 0; text-align: center; }
+    .brand p { margin:.1rem 0 0; color:#475569; font-size:.92rem; text-align:center; }
+
+    form { display:grid; gap: 1rem; margin-top:.35rem; }
+    label { font-weight: 600; color: var(--brand-blue); font-size: .92rem; margin-bottom: .2rem; }
+
+    /* inputs estilo cotizador (línea inferior animada) */
+    .input {
+      border: none; outline: none; background: transparent; color: var(--ink);
+      padding: 0.65rem 0.25rem; font-size: 1rem; position: relative;
+      border-bottom: 2px solid #d1d5db;
+      transition: border-color .22s var(--ease), transform .18s var(--ease), background-size .22s var(--ease);
+      background-image: linear-gradient(90deg, var(--brand-mint), var(--brand-teal));
+      background-repeat: no-repeat; background-size: 0% 2px; background-position: 0 100%;
+      width: 100%;
+    }
+    .input:focus { border-color: transparent; background-size: 100% 2px; transform: translateY(-1px); }
+    .input::placeholder { color: var(--muted); }
+
+    .row { display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+    .remember { display:flex; align-items:center; gap:.5rem; color:#475569; font-size:.92rem; }
+
+    /* botón igual que en el cotizador */
+    .btn {
+      position: relative; overflow: hidden; isolation: isolate;
+      padding: .8rem 1.2rem; border: 2px solid var(--brand-blue); background: #fff; color: var(--brand-blue);
+      font-weight: 700; font-size: 1rem; border-radius: 12px; cursor: pointer;
+      transition: transform .16s var(--ease), background .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
+      width:100%;
+    }
+    .btn:hover { background: linear-gradient(135deg, var(--brand-mint), var(--brand-teal)); color:#fff; border-color: transparent; box-shadow: 0 12px 26px -16px rgba(30,58,138,.45); }
+    .btn:active { transform: translateY(1px) scale(.99); }
+    .ripple { position:absolute; inset:auto; width:8px; height:8px; border-radius:50%; background: currentColor; opacity:.18; transform: translate(-50%, -50%) scale(1); animation: ripple .6s ease-out forwards; pointer-events:none; z-index:-1; }
+    @keyframes ripple { to { transform: translate(-50%, -50%) scale(24); opacity:0; } }
+
+    .links { display:flex; justify-content:space-between; align-items:center; font-size:.92rem; margin-top:.2rem; }
+    .links a { color: var(--brand-blue); text-decoration:none; }
+    .links a:hover { text-decoration: underline; }
+
+    .msg { margin:.25rem 0 .2rem; font-size:.92rem; padding:.5rem .6rem; border-radius:8px; }
+    .error { background:#fee2e2; color:#991b1b; border:1px solid #fecaca; }
+    .ok { background:#dcfce7; color:#065f46; border:1px solid #bbf7d0; }
+
+    /* mostrar/ocultar contraseña */
+    .pwd-wrap { position:relative; }
+    .toggle {
+      position:absolute; right:0; top:50%; transform:translateY(-50%);
+      background:transparent; border:0; color:#334155; cursor:pointer; font-weight:700;
+      padding:.25rem .35rem;
+    }
+
+    @media (max-width: 520px){
+      .auth-wrapper { max-width: 94vw; }
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-wrapper">
+    <div class="card">
+      <div class="brand">
+        <h1>Ingresar al cotizador</h1>
+      </div>
+
+      <!-- mensajes Spring Security -->
+      <div th:if="${param.error}" class="msg error">Usuario o contraseña incorrectos.</div>
+      <div th:if="${param.logout}" class="msg ok">Sesión cerrada correctamente.</div>
+
+      <form th:action="@{/login}" method="post">
+        <!-- CSRF obligatorio -->
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+        <div>
+          <label for="username">Usuario</label>
+          <input id="username" name="username" type="text" class="input" autocomplete="username" placeholder="tu_usuario" required />
+        </div>
+
+        <div class="pwd-wrap">
+          <label for="password">Contraseña</label>
+          <input id="password" name="password" type="password" class="input" autocomplete="current-password" placeholder="••••••••" required />
+          <button class="toggle" type="button" aria-label="Mostrar/Ocultar" onclick="togglePwd()">👁️</button>
+        </div>
+
+        <div class="row">
+          <label class="remember">
+            <input type="checkbox" name="remember-me" />
+            Recordarme
+          </label>
+        </div>
+
+        <button class="btn" type="submit" id="btnLogin">Entrar</button>
+
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Ripple como el cotizador
+    function attachRipple(btn){
+      btn.addEventListener('click', (e)=>{
+        const r = document.createElement('span');
+        r.className = 'ripple';
+        const rect = btn.getBoundingClientRect();
+        r.style.left = (e.clientX - rect.left) + 'px';
+        r.style.top  = (e.clientY - rect.top)  + 'px';
+        btn.appendChild(r);
+        setTimeout(()=> r.remove(), 650);
+      });
+    }
+    attachRipple(document.getElementById('btnLogin'));
+
+    // Mostrar/ocultar contraseña
+    function togglePwd(){
+      const p = document.getElementById('password');
+      p.type = p.type === 'password' ? 'text' : 'password';
+    }
+  </script>
+</body>
+</html>
