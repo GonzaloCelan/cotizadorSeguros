@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8" />
   <title>Prepagas San Juan – Cotizador</title>
@@ -10,6 +10,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <!-- (Opcional) Preload del logo -->
   <link rel="preload" as="image" href="/logo.png">
+
+  <!-- CSRF para fetch y formularios -->
+  <meta name="_csrf" th:content="${_csrf.token}">
+  <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
   <style>
     :root {
       --brand-blue: #1e3a8a;
@@ -29,34 +34,51 @@
       margin: 0;
       padding: 2rem 1rem 0; /* sin padding inferior */
       position: relative;
-      /* Fondo combinado: degradé ambiental + focos suaves */
       background:
         radial-gradient(900px 500px at -10% -10%, rgba(18,198,201,.12) 0%, transparent 60%),
         radial-gradient(900px 500px at 110% 110%, rgba(30,58,138,.12) 0%, transparent 60%),
         linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
     }
-    /* Textura de micro-puntos sutil */
     body::before{
       content:""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
       background-image: radial-gradient(rgba(14,165,168,0.06) 1px, transparent 1.4px);
       background-size: 22px 22px; opacity:.9;
     }
-    /* Capa de “granito” hiper sutil */
     body::after{
       content:""; position: fixed; inset:0; pointer-events:none; z-index:0;
       background-image: url("data:image/svg+xml;utf8,\
 <svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'>\
 <filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/></filter>\
-<rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/>\
-</svg>");
+<rect width='100%' height='100%' filter='url(%23n)' opacity='0.03'/></svg>");
       background-size: 200px 200px; mix-blend-mode: multiply;
     }
 
+    /* Botón “Salir” arriba derecha (discreto) */
+    .top-actions{
+      position: fixed;
+      top: 12px; right: 12px;
+      z-index: 20;
+    }
+    .logout-btn{
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .45rem .8rem;
+      font-weight: 600; font-size: .95rem;
+      color: var(--brand-blue);
+      background: rgba(255,255,255,.85);
+      border: 1px solid #dbe3ef;
+      border-radius: 9999px;
+      cursor: pointer;
+      opacity: .9;
+      box-shadow: 0 6px 18px -14px rgba(2,6,23,.55);
+      backdrop-filter: saturate(1.05) blur(2px);
+      transition: background .2s var(--ease), opacity .2s var(--ease), box-shadow .2s var(--ease);
+    }
+    .logout-btn:hover{ background:#fff; opacity:1; box-shadow: 0 12px 24px -18px rgba(2,6,23,.55); }
+    .logout-btn svg{ width:16px; height:16px; stroke-width:2; }
+
     .form-wrapper { max-width: 960px; margin: auto; position:relative; z-index:1; }
-    /* Evitar bloque blanco al final */
     .form-wrapper > *:last-child{ margin-bottom: 0; }
 
-    /* Blobs difuminados detrás del contenido */
     .form-wrapper::before,
     .form-wrapper::after{
       content:""; position:absolute; filter: blur(48px); opacity: .25; z-index:-1;
@@ -71,23 +93,11 @@
       background: radial-gradient(circle at 70% 70%, var(--brand-blue) 0%, transparent 60%);
     }
 
-    /* ---- NUEVO: bloque de marca (logo arriba del título) ---- */
-    .brand {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: .4rem;
-      margin-bottom: .5rem;
-    }
-    .brand img {
-      width: 80px;       /* ajustá el tamaño acá si querés */
-      height: auto;
-      display: block;
-    }
+    .brand { display: flex; flex-direction: column; align-items: center; gap: .4rem; margin-bottom: .5rem; }
+    .brand img { width: 80px; height: auto; display: block; }
 
     h1 { text-align: center; color: var(--brand-blue); margin-bottom: 2rem; }
 
-    /* ===== Selector de grupo familiar ===== */
     .grupo-familiar-selector {
       display: flex; gap: 1rem; justify-content: center;
       margin-bottom: 2rem; flex-wrap: wrap;
@@ -106,10 +116,8 @@
     }
     .hidden { display: none !important; }
 
-    /* ===== Grid (3 columnas) ===== */
     form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
 
-    /* Apariencia de campos con animaciones */
     .form-group { display: flex; flex-direction: column; opacity: 0; transform: translateY(6px); animation: enter .5s var(--ease) forwards; }
     .form-group:nth-of-type(1){animation-delay:.02s} .form-group:nth-of-type(2){animation-delay:.06s} .form-group:nth-of-type(3){animation-delay:.1s}
     .form-group:nth-of-type(4){animation-delay:.14s} .form-group:nth-of-type(5){animation-delay:.18s} .form-group:nth-of-type(6){animation-delay:.22s}
@@ -133,7 +141,6 @@
       background-image: none; border-bottom: 2px dashed #e5e7eb;
     }
 
-    /* ==== Estados de error (nuevo) ==== */
     .input-error { color:#b91c1c; font-size:.85rem; margin-top:.25rem; display:none; }
     input[aria-invalid="true"], select[aria-invalid="true"]{
       border-bottom-color:#ef4444 !important;
@@ -144,7 +151,6 @@
 
     .full-width { grid-column: 1 / -1; }
 
-    /* Botones */
     .actions { grid-column: 1 / -1; display: flex; justify-content: start; gap: 1.2rem; margin-top: .25rem; }
     .btn {
       position: relative; overflow: hidden; isolation: isolate;
@@ -160,12 +166,10 @@
 
     .ripple { position:absolute; inset:auto; width:8px; height:8px; border-radius:50%; background: currentColor; opacity:.18; transform: translate(-50%, -50%) scale(1); animation: ripple .6s ease-out forwards; pointer-events:none; z-index:-1; }
 
-    /* Iconos en los tabs */
     .opcion-familiar { display: inline-flex; align-items: center; gap: .6rem; }
     .fam-icon { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; line-height: 0; }
     .opcion-familiar svg { width: 100%; height: 100%; }
 
-    /* Tabla/Grilla */
     .table-card { margin-top: 1.75rem; border-radius: 5px; overflow: hidden; background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 18px 44px -26px rgba(15,23,42,.35), 0 10px 22px -16px rgba(15,23,42,.18); padding:16px; }
     table { width: 100%; border-collapse: collapse; table-layout: fixed; }
     th, td { text-align: left; padding: 10px 14px; }
@@ -174,21 +178,16 @@
     tbody tr { transition: background .2s var(--ease); }
     tbody tr:hover { background: #edfafa; }
 
-    /* columnas (como el boceto) */
     col.col-proveedor { width: 30%; }
     col.col-plan      { width: 28%; }
     col.col-num       { width: 18%; }
     col.col-estado    { width: 16%; }
     col.col-detalle   { width: 8%; }
 
-    /* números tabulares */
     th.num, td.num { text-align: left; white-space: nowrap; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; }
     td.price-final { font-weight: 800; color: var(--brand-blue); }
-
-    /* Estado en texto */
     td.estado { text-align: left; }
 
-    /* Link "Ver detalle" */
     .link-detalle{
       color: var(--brand-blue);
       font-weight: 700;
@@ -198,12 +197,10 @@
     }
     .link-detalle:hover{ text-decoration: underline; }
 
-    /* Skeleton y animaciones */
     .skeleton { position: relative; height: 18px; border-radius: 6px; overflow: hidden; background: #e5e7eb; }
     .skeleton::after { content:''; position:absolute; inset:0; transform: translateX(-100%); background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent); animation: shimmer 1.1s infinite; }
     .row-in { opacity:0; transform: translateY(6px); animation: rowIn .45s var(--ease) forwards; }
 
-    /* Modal */
     .modal-backdrop { position: fixed; inset: 0; background: rgba(2,6,23,.5); display: none; align-items: center; justify-content: center; padding: 1rem; z-index: 50; }
     .modal-backdrop.show { display:flex; }
     .modal { width: 100%; max-width: 680px; background: #fff; border-radius: 16px; box-shadow: 0 30px 60px -20px rgba(2,6,23,.45); overflow: hidden; transform: scale(.98) translateY(6px); opacity: 0; animation: modalIn .24s var(--ease) forwards; }
@@ -222,20 +219,12 @@
     @keyframes ripple { to { transform: translate(-50%, -50%) scale(24); opacity:0; } }
     @keyframes modalIn { to { opacity:1; transform: none; } }
 
-    /* Separador sutil entre filas */
     tbody tr + tr td { border-top: 1px solid #e5e7eb; }
-
-    /* Alineaciones */
     th:nth-child(3), td:nth-child(3) { text-align: right; }
     td:nth-child(4) { text-align: left;  white-space: nowrap; }
     td:nth-child(5) { text-align: right; white-space: nowrap; }
 
-    td:nth-child(1), td:nth-child(2) {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
+    td:nth-child(1), td:nth-child(2) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     col.col-detalle { width: 120px; }
     td:nth-child(5) { text-align: right; white-space: nowrap; overflow: visible; }
 
@@ -249,7 +238,6 @@
       th, td { padding: 8px 10px; }
     }
 
-    /* Empty state */
     .empty-state{
       display:flex; flex-direction:column; align-items:center; justify-content:center;
       gap:6px; text-align:center; padding:32px 16px; border:1.5px dashed #cbd5e1; border-radius:12px;
@@ -261,15 +249,26 @@
   </style>
 </head>
 <body>
+  <!-- Botón Salir (logout) con CSRF -->
+  <form id="logoutForm" class="top-actions" th:action="@{/logout}" method="post">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <button type="submit" class="logout-btn" aria-label="Salir (cerrar sesión)" title="Salir">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <path d="M16 17l5-5-5-5"/>
+        <path d="M21 12H9"/>
+      </svg>
+      <span>Salir</span>
+    </button>
+  </form>
+
   <div class="form-wrapper">
-    <!-- NUEVO: Logo arriba del título -->
     <div class="brand">
       <img src="/logo.png" alt="Logo Prepagas San Juan">
     </div>
 
     <h1>Prepagas San Juan – Cotizador</h1>
 
-    <!-- Selector de grupo familiar -->
     <div class="grupo-familiar-selector">
       <button type="button" class="opcion-familiar seleccionada" data-tipo="solo" aria-pressed="true">
         <span class="fam-icon" aria-hidden="true">
@@ -317,7 +316,6 @@
       </button>
     </div>
 
-    <!-- Formulario -->
     <form id="formCotizador">
       <input type="hidden" id="tipoGrupo" value="solo" />
 
@@ -377,10 +375,9 @@
       </div>
     </form>
 
-    <!-- Grilla de resultados -->
     <div class="table-card">
       <div id="emptyState" class="empty-state">
-        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 14a1 1 0 1 1-1 1 1 1 0 0 1 1-1Zm1-3h-2a1 1 0 0 1-1-1V7a1 1 0 0 1 2 0v4h1a1 1 0 0 1 0 2Z"/></svg>
+        <svg width="28" height="28" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 14a1 1 0 1 1-1 1 1 0 0 1 1-1Zm1-3h-2a1 1 0 0 1-1-1V7a1 1 0 0 1 2 0v4h1a1 1 0 0 1 0 2Z"/></svg>
         <p class="empty-title">Todavía no se realizaron cotizaciones</p>
         <p class="empty-sub">Completá el formulario y tocá <strong>“Obtener cotización”</strong>.</p>
       </div>
@@ -407,7 +404,6 @@
     </div>
   </div>
 
-  <!-- Modal de detalle -->
   <div id="detalleBackdrop" class="modal-backdrop" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="detalleTitulo">
       <header>
@@ -417,6 +413,16 @@
       <div class="content" id="detalleContenido"></div>
     </div>
   </div>
+
+  <!-- Helpers CSRF para fetch -->
+  <script>
+    const CSRF_TOKEN  = document.querySelector('meta[name="_csrf"]')?.content;
+    const CSRF_HEADER = document.querySelector('meta[name="_csrf_header"]')?.content || 'X-CSRF-TOKEN';
+    function withCsrf(headers = {}) {
+      if (CSRF_TOKEN) headers[CSRF_HEADER] = CSRF_TOKEN;
+      return headers;
+    }
+  </script>
 
   <script>
     function attachRipple(btn){
@@ -572,7 +578,8 @@
     async function postConsultar(body){
       const res = await fetch('/api/cotizador/consultar', {
         method: 'POST',
-        headers: {'Content-Type': 'application/json'},
+        headers: withCsrf({'Content-Type': 'application/json'}),
+        credentials: 'same-origin',
         body: JSON.stringify(body)
       });
       if(!res.ok){
@@ -611,7 +618,6 @@
     }
 
     function validarAntesDeCotizar(){
-      // Requerir sueldo si afiliación = 1 (Relación de dependencia)
       if (afiliacion.value === '1'){
         const val = parseFloat(sueldo.value);
         if (isNaN(val) || val <= 0){
@@ -625,8 +631,7 @@
 
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
-      // Validación sincronizada previa
-      if (!validarAntesDeCotizar()) return; // no continúa si falla
+      if (!validarAntesDeCotizar()) return;
 
       btn.classList.add('loading');
       showSkeleton(5);
@@ -643,7 +648,6 @@
       }
     });
 
-    // Limpiar y resetear errores
     btnL.addEventListener('click', ()=>{
       form.reset();
       document.querySelectorAll('.opcion-familiar').forEach(b => b.classList.remove('seleccionada'));
@@ -655,7 +659,6 @@
       tbody.innerHTML = '';
     });
 
-    // Quitar error al tipear
     ['input','blur'].forEach(evt => {
       sueldo.addEventListener(evt, ()=> {
         if (afiliacion.value === '1'){
@@ -673,7 +676,8 @@
       const provSeg = encodeURIComponent(String(proveedor ?? '').trim());
       const res = await fetch(`/api/cotizador/detalle/${provSeg}/${id}`, {
         method: 'POST',
-        headers: {'Content-Type':'application/json'},
+        headers: withCsrf({'Content-Type':'application/json'}),
+        credentials: 'same-origin',
         body: JSON.stringify(body)
       });
       if(!res.ok){

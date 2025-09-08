@@ -11,66 +11,84 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 
 
 @Configuration
 @EnableWebSecurity
-
 public class SecurityConfig {
 
-	  
-	  @Bean
-	    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-	        http
-	            .authorizeHttpRequests(a -> a
-	                .requestMatchers(
-	                    "/login",
-	                    "/manifest.webmanifest",
-	                    "/sw.js",
-	                    "/logo.png",
-	                    "/icons/**",
-	                    "/css/**",
-	                    "/js/**"
-	                ).permitAll()
-	                .anyRequest().authenticated()
-	            )
-	            .formLogin(f -> f
-	                .loginPage("/login")
-	                .loginProcessingUrl("/login")
-	                .defaultSuccessUrl("/index.html", true)
-	                .permitAll()
-	            )
-	            .logout(l -> l
-	                .logoutSuccessUrl("/login?logout")
-	                .invalidateHttpSession(true)  // invalida sesión
-	                .deleteCookies("JSESSIONID")  // elimina cookie de sesión
-	                .permitAll()
-	            )
-	            .sessionManagement(s -> s
-	                .maximumSessions(1)  // solo una sesión activa por usuario
-	                .maxSessionsPreventsLogin(false)
-	            )
-	            .sessionManagement(s -> s
-	                .sessionFixation().migrateSession() // previene ataques de fijación de sesión
-	                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-	            );
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            // 🔐 Desactiva CSRF para permitir fetch() POST sin token
+        //.csrf(csrf -> csrf.disable())
 
-	        return http.build();
-	    }
+            // ✅ Autoriza rutas públicas
+        	.csrf(csrf -> {})
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(
+                    "/login",                       // Página de login
+                    "/api/cotizador/login",        // Endpoint de login
+                    "/api/cotizador/consultar",   
+                    "/api/cotizador/detalle",  // Todas las rutas de la API (consultar, detalle, etc.)
+                    "/manifest.webmanifest",
+                    "/sw.js",
+                    "/logo.png",
+                    "/icons/**",
+                    "/css/**",
+                    "/js/**"
+                ).permitAll()
+                .anyRequest().authenticated()     // Todo lo demás requiere login
+            )
 
-	    @Bean
-	    public PasswordEncoder passwordEncoder() {
-	        return new BCryptPasswordEncoder();
-	    }
+            // 🔐 Configura formulario de login
+            .formLogin(form -> form
+                .loginPage("/api/cotizador/login")          // Página de login (HTML)
+                .loginProcessingUrl("/login")               // Endpoint POST al hacer login
+                .defaultSuccessUrl("/api/cotizador/inicio", true) // Redirige al éxito
+                .permitAll()
+            )
 
-	    @Bean
-	    public InMemoryUserDetailsManager userDetailsService(PasswordEncoder encoder) {
-	        UserDetails admin = User.withUsername("francoroldan")
-	            .password(encoder.encode("franco1234"))
-	            .roles("ADMIN")
-	            .build();
-	        return new InMemoryUserDetailsManager(admin);
-	    }
+            // 🚪 Configura logout
+            .logout(logout -> logout
+                .logoutSuccessUrl("/login?logout")          // Redirige tras logout
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            )
+
+            // 👤 Manejo de sesiones
+            .sessionManagement(session -> session
+                .invalidSessionUrl("/login?expired=true")
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false)
+            )
+
+            .sessionManagement(session -> session
+                .sessionFixation().migrateSession()
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            );
+
+        return http.build();
+    }
+    
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+        UserDetails user = User.builder()
+            .username("admin")
+            .password(encoder.encode("1234"))
+            .roles("USER")
+            .build();
+
+        return new InMemoryUserDetailsManager(user);
+    }
+
+    // 🔐 Codificador para contraseñas
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }

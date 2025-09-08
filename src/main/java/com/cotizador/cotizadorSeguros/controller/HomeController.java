@@ -7,9 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Controller
 @RequestMapping("/api/cotizador")
-public class LoginController {
+	public class HomeController {
 
-	
-	  @GetMapping("/login")
-	  public String login() { return "login"; } //
-}
+	    @GetMapping("/inicio")
+	    public String home() {
+	        return "index"; // busca templates/index.html (sin la extensión)
+	    }
+	}
+
