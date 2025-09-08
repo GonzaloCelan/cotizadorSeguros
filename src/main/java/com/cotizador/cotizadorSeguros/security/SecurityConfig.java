@@ -1,12 +1,15 @@
 package com.cotizador.cotizadorSeguros.security;
 
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+
+
+
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.userdetails.User;
@@ -19,6 +22,20 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	
+	 // Lee variables de entorno (con valores por defecto si faltan)
+	  @Value("${APP_USER:admin}")
+	  private String appUser;
+
+	  @Value("${APP_PASS:changeme}")
+	  private String appPass;
+
+	 
+	  @Value("${APP_ROLES:USER}")
+	  private String appRoles;
+
+
+    
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -75,20 +92,23 @@ public class SecurityConfig {
         return http.build();
     }
     
+    // solo si tengo varios roles 
+    
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder encoder) {
+     public UserDetailsService userDetailsService(PasswordEncoder encoder) {
         UserDetails user = User.builder()
-            .username("admin")
-            .password(encoder.encode("1234"))
-            .roles("USER")
+            .username(appUser)
+            .password(encoder.encode(appPass))
+            .roles(appRoles)
             .build();
 
         return new InMemoryUserDetailsManager(user);
     }
 
     // 🔐 Codificador para contraseñas
+    
     @Bean
-    public PasswordEncoder passwordEncoder() {
+     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }
